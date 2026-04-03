@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { geocodeAddress } from '@/lib/geocode'
 import { createServiceClient } from '@/lib/supabase'
+import { getZoneForPoint } from '@/lib/zone-lookup'
 
 // GET handlers are dynamic by default in Next.js 16
 export const dynamic = 'force-dynamic'
