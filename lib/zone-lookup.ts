@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import * as turf from '@turf/turf'
+import type GeoJSON from 'geojson'
 
 // Property names to try for zone code, in order of preference
 // BCC ArcGIS uses uppercase; Open Data Portal uses lowercase
@@ -62,7 +63,7 @@ export function getZoneForPoint(lat: number, lng: number): string | null {
   for (const feature of zones.features) {
     if (!feature.geometry) continue
     try {
-      if (turf.booleanPointInPolygon(point, feature as turf.Feature<turf.Polygon | turf.MultiPolygon>)) {
+      if (turf.booleanPointInPolygon(point, feature as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>)) {
         return extractZoneCode(feature.properties as Record<string, unknown>)
       }
     } catch {
