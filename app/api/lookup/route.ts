@@ -156,7 +156,7 @@ function logRequest(opts: {
   request: NextRequest
 }) {
   const db = createServiceClient()
-  db.from('lookup_log')
+  void db.from('lookup_log')
     .insert({
       address_input: opts.addressInput,
       lat: opts.lat,
@@ -166,5 +166,4 @@ function logRequest(opts: {
       origin: opts.request.headers.get('origin'),
     })
     .then(() => {})
-    .catch(() => {})
 }
