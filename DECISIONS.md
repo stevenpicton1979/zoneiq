@@ -96,8 +96,48 @@ All ambiguity decisions logged here. No questions asked — decided and document
 
 ---
 
-## D12 — Brisbane boundary check via bounding box
+## D12 — Brisbane boundary check removed in Sprint 1
 
-**Decision:** "Outside Brisbane" is determined by checking if the geocoded lat/lng falls outside a bounding box: lat (-28.0 to -27.0), lng (152.6 to 153.6). If no zone polygon matches within this box, return `OUTSIDE_COVERAGE`.
+**Decision:** The bounding-box pre-check (`isWithinBrisbaneBounds`) was removed from `route.ts` in Sprint 1.
 
-**Reason:** The turf `booleanPointInPolygon` loop naturally returns null for addresses outside all zone polygons. The bounding box pre-check gives a more informative error. The box covers the Brisbane LGA with ~10km margin.
+**Reason:** The PostGIS `ST_Contains` query returns null for any point outside all zone polygons, which already maps to `OUTSIDE_COVERAGE`. The redundant bounding-box check added friction for edge cases near the LGA boundary and was removed. The spatial index makes the PostGIS query fast enough that pre-filtering is unnecessary.
+
+---
+
+## D13 — Sprint 1: PostGIS over in-process turf
+
+**Decision:** Replace the in-process turf `booleanPointInPolygon` loop with a Supabase PostGIS RPC call (`get_zone_for_point`).
+
+**Reason:** The GeoJSON dataset is 50 MB / 26,360 features. On Vercel serverless, the CPU time limit is hit before the loop completes for many requests. PostGIS with a GiST index runs `ST_Contains` in milliseconds regardless of feature count. This is the correct architectural separation: spatial queries belong in the database.
+
+**Trade-off:** Each lookup now requires a network round-trip to Supabase. In practice this is 10–50 ms and well within acceptable response time.
+
+---
+
+## D14 — Import batch strategy: jsonb_to_recordset
+
+**Decision:** `import-geometries.ts` inserts geometry batches using a single SQL statement per batch via `jsonb_to_recordset`, not N individual inserts.
+
+**Reason:** 26,360 individual INSERT statements would take tens of minutes over a network connection. Batching 100 rows at a time with a single SQL call reduces round-trips by 99% and completes the import in minutes.
+
+**Geometry conversion:** `ST_Multi(ST_GeomFromGeoJSON(geometry_json))` converts both Polygon and MultiPolygon GeoJSON geometries to the `geometry(MultiPolygon, 4326)` column type in one call. ST_Multi is a no-op for geometries already in Multi form.
+
+---
+
+## D15 — postgres npm package for import script only
+
+**Decision:** The `postgres` npm package is used only in `scripts/import-geometries.ts` (a one-time CLI script). The Next.js app uses only `@supabase/supabase-js` for runtime DB access.
+
+**Reason:** The import script needs to run raw parameterised SQL with PostGIS functions (`ST_GeomFromGeoJSON`) that are not exposed via the Supabase JS client's query builder. Direct postgres connection is cleaner than calling PostGIS via RPC for bulk inserts. The Next.js app itself never imports `postgres` — no bundle impact.
+
+---
+
+## D16 — Execution order for Sprint 1
+
+1. Enable PostGIS in Supabase SQL editor (done)
+2. Create `zone_geometries` table + GiST index (done)
+3. Create `get_zone_for_point` RPC function (SQL in `supabase/spatial-schema.sql`)
+4. Add `DATABASE_URL` to `.env.local`
+5. Run `npm run import-geometries` (~26,360 features, takes a few minutes)
+6. Verify in Supabase: `SELECT get_zone_for_point(-27.4612, 153.0089);` → should return a zone code
+7. Deploy updated `zone-lookup.ts` and `route.ts`
