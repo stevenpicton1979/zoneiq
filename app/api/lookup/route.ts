@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   const { lat, lng, address_resolved } = geocoded
 
   // Spatial lookup
-  const zoneCode = getZoneForPoint(lat, lng)
+  const zoneCode = await getZoneForPoint(lat, lng)
 
   if (!zoneCode) {
     logRequest({ addressInput, lat, lng, zoneCode: null, request })
