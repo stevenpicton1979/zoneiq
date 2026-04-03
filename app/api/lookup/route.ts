@@ -1,6 +1,5 @@
 import type { NextRequest } from 'next/server'
 import { geocodeAddress } from '@/lib/geocode'
-import { getZoneForPoint, isWithinBrisbaneBounds } from '@/lib/zone-lookup'
 import { createServiceClient } from '@/lib/supabase'
 
 // GET handlers are dynamic by default in Next.js 16
@@ -44,20 +43,6 @@ export async function GET(request: NextRequest) {
   }
 
   const { lat, lng, address_resolved } = geocoded
-
-  // Bounding-box check before expensive point-in-polygon loop
-  if (!isWithinBrisbaneBounds(lat, lng)) {
-    logRequest({ addressInput, lat, lng, zoneCode: null, request })
-    return Response.json(
-      {
-        success: false,
-        error: 'OUTSIDE_COVERAGE',
-        message:
-          'Address is outside Brisbane City Council boundary. Coverage is currently Brisbane only.',
-      },
-      { status: 404, headers: CORS_HEADERS }
-    )
-  }
 
   // Spatial lookup
   const zoneCode = getZoneForPoint(lat, lng)
