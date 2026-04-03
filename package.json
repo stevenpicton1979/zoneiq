@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "eslint",
     "download-zones": "npx tsx scripts/download-zones.ts",
-    "seed-rules": "npx tsx scripts/seed-rules.ts"
+    "seed-rules": "npx tsx scripts/seed-rules.ts",
+    "import-geometries": "npx tsx scripts/import-geometries.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
     "@turf/turf": "^7.3.4",
     "next": "16.2.2",
+    "postgres": "^3.4.8",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
