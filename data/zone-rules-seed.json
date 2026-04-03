@@ -226,5 +226,32 @@
     "prohibited_uses": ["Dwelling house", "Multiple dwelling", "High impact industry", "Extractive industry"],
     "source_url": "https://cityplan.brisbane.qld.gov.au",
     "last_verified": "2025-01-01"
-  }
+  },
+  {
+  "zone_code": "SBCA",
+  "zone_name": "South Brisbane Character Area",
+  "zone_category": "mixed",
+  "max_height_m": 15.5,
+  "max_storeys": 4,
+  "max_site_coverage_pct": 70,
+  "min_permeability_pct": 10,
+  "front_setback_m": 0.0,
+  "side_setback_m": 0.0,
+  "rear_setback_m": 3.0,
+  "secondary_dwelling_permitted": "permit_required",
+  "short_term_accom_permitted": "permit_required",
+  "home_business_permitted": "yes",
+  "subdivision_min_lot_size_m2": null,
+  "key_rules": [
+    "Character of South Brisbane streetscape must be maintained",
+    "Mixed residential and commercial uses permitted",
+    "Maximum 4 storeys / 15.5m",
+    "Active ground floor frontages encouraged"
+  ],
+  "permitted_uses": ["Multiple dwelling", "Shop", "Food and drink outlet", "Office"],
+  "requires_permit_uses": ["Short-term accommodation", "Hotel", "Nightclub"],
+  "prohibited_uses": ["Heavy industry", "Warehouse", "Rural activities"],
+  "source_url": "https://cityplan.brisbane.qld.gov.au",
+  "last_verified": "2025-01-01"
+}
 ]
