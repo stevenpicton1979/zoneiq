@@ -87,7 +87,6 @@ async function main() {
 
     for (let i = 0; i < total; i += BATCH_SIZE) {
       const batch = geojson.features.slice(i, i + BATCH_SIZE)
-      const rows: { zone_code: string; geometry_json: string }[] = []
 
       for (const feature of batch) {
         if (!feature.geometry) { skipped++; continue }
@@ -98,23 +97,14 @@ async function main() {
         const geomType = feature.geometry.type
         if (geomType !== 'Polygon' && geomType !== 'MultiPolygon') { skipped++; continue }
 
-        rows.push({
-          zone_code: zoneCode,
-          geometry_json: JSON.stringify(feature.geometry),
-        })
-      }
-
-      if (rows.length > 0) {
-        // ST_Multi wraps Polygon → MultiPolygon; is a no-op for MultiPolygon
         await sql`
           INSERT INTO zone_geometries (zone_code, geometry)
-          SELECT
-            r.zone_code,
-            ST_Multi(ST_GeomFromGeoJSON(r.geometry_json))::geometry(MultiPolygon, 4326)
-          FROM jsonb_to_recordset(${JSON.stringify(rows)}::jsonb)
-            AS r(zone_code text, geometry_json text)
+          VALUES (
+            ${zoneCode},
+            ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(feature.geometry)}))::geometry(MultiPolygon, 4326)
+          )
         `
-        inserted += rows.length
+        inserted++
       }
 
       if ((i + BATCH_SIZE) % 1000 < BATCH_SIZE || i + BATCH_SIZE >= total) {
@@ -124,7 +114,6 @@ async function main() {
 
     console.log(`\nDone. Inserted: ${inserted}, Skipped: ${skipped}`)
 
-    // Verify
     const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM zone_geometries`
     console.log(`Rows in zone_geometries: ${count}`)
   } finally {
