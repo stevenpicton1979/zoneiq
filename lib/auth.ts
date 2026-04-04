@@ -18,7 +18,7 @@ export type AuthResult =
   | { valid: false; error: string; upgrade_url?: string }
 
 export interface ApiKeyRecord {
-  id: string
+  id?: string           // absent for RapidAPI synthetic records
   key_prefix: string
   name: string
   email: string
@@ -27,9 +27,67 @@ export interface ApiKeyRecord {
   requests_total: number
   rate_limit_per_day: number
   is_active: boolean
+  source?: string       // 'direct' | 'rapidapi'
 }
 
-export async function validateApiKey(key: string): Promise<AuthResult> {
+interface RapidApiHeaders {
+  proxySecret?: string | null
+  subscriptionPlan?: string | null
+}
+
+// RapidAPI subscription plan → internal plan name
+const RAPIDAPI_PLAN_MAP: Record<string, string> = {
+  basic: 'free',
+  pro: 'starter',
+  ultra: 'pro',
+  mega: 'enterprise',
+}
+
+const PLAN_RATE_LIMITS: Record<string, number> = {
+  free: 100,
+  starter: 500,
+  pro: 5000,
+  enterprise: 50000,
+}
+
+export async function validateApiKey(
+  key: string | null,
+  rapidApi?: RapidApiHeaders
+): Promise<AuthResult> {
+
+  // ── RapidAPI path ──────────────────────────────────────────────────────────
+  // RapidAPI injects X-RapidAPI-Proxy-Secret on every proxied request.
+  // If present and valid, bypass our api_keys table entirely.
+  if (rapidApi?.proxySecret) {
+    const expectedSecret = process.env.RAPIDAPI_PROXY_SECRET
+    if (!expectedSecret || rapidApi.proxySecret !== expectedSecret) {
+      return { valid: false, error: 'Invalid RapidAPI proxy secret.' }
+    }
+
+    const rawPlan = (rapidApi.subscriptionPlan ?? 'basic').toLowerCase()
+    const plan = RAPIDAPI_PLAN_MAP[rawPlan] ?? 'free'
+
+    return {
+      valid: true,
+      keyData: {
+        key_prefix: 'rapidapi',
+        name: 'RapidAPI Subscriber',
+        email: '',
+        plan,
+        requests_today: 0,
+        requests_total: 0,
+        rate_limit_per_day: PLAN_RATE_LIMITS[plan] ?? 100,
+        is_active: true,
+        source: 'rapidapi',
+      },
+    }
+  }
+
+  // ── Direct key path ────────────────────────────────────────────────────────
+  if (!key) {
+    return { valid: false, error: 'API key required. Pass as X-Api-Key header or ?api_key= parameter.' }
+  }
+
   if (!key.startsWith('ziq_live_')) {
     return { valid: false, error: 'Invalid API key format.' }
   }
@@ -67,5 +125,5 @@ export async function validateApiKey(key: string): Promise<AuthResult> {
     .eq('id', data.id)
     .then(() => {})
 
-  return { valid: true, keyData: data as ApiKeyRecord }
+  return { valid: true, keyData: { ...data, source: 'direct' } as ApiKeyRecord }
 }

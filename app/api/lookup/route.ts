@@ -37,11 +37,18 @@ export async function GET(request: NextRequest) {
   }
 
   // Optional API key auth — unauthenticated requests still work (test UI, free tier)
+  // RapidAPI requests carry X-RapidAPI-Proxy-Secret; direct requests use X-Api-Key.
   const apiKey = request.headers.get('x-api-key') || searchParams.get('api_key')
+  const rapidApiProxySecret = request.headers.get('x-rapidapi-proxy-secret')
+  const rapidApiSubscriptionPlan = request.headers.get('x-rapidapi-subscription-plan')
+
   let keyData: ApiKeyRecord | null = null
 
-  if (apiKey) {
-    const authResult = await validateApiKey(apiKey)
+  if (apiKey || rapidApiProxySecret) {
+    const authResult = await validateApiKey(apiKey, {
+      proxySecret: rapidApiProxySecret,
+      subscriptionPlan: rapidApiSubscriptionPlan,
+    })
     if (!authResult.valid) {
       return Response.json(
         {
@@ -81,7 +88,7 @@ export async function GET(request: NextRequest) {
   ])
 
   if (!zoneResult) {
-    logRequest({ addressInput, lat, lng, zoneCode: null, keyId: keyData?.id ?? null, request })
+    logRequest({ addressInput, lat, lng, zoneCode: null, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
     return Response.json(
       {
         success: false,
@@ -104,7 +111,7 @@ export async function GET(request: NextRequest) {
     .eq('council', council)
     .single()
 
-  logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, request })
+  logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
 
   if (dbError || !rules) {
     return Response.json(
@@ -191,6 +198,7 @@ function logRequest(opts: {
   lng: number | null
   zoneCode: string | null
   keyId: string | null
+  source: string
   request: NextRequest
 }) {
   const db = createServiceClient()
@@ -201,6 +209,7 @@ function logRequest(opts: {
       lat: opts.lat,
       lng: opts.lng,
       zone_code: opts.zoneCode,
+      source: opts.source,
       user_agent: opts.request.headers.get('user-agent'),
       origin: opts.request.headers.get('origin'),
     })
