@@ -7,6 +7,8 @@ import {
   getCharacterForPoint,
   getSchoolsForPoint,
 } from '@/lib/zone-lookup'
+import { validateApiKey } from '@/lib/auth'
+import type { ApiKeyRecord } from '@/lib/auth'
 
 // GET handlers are dynamic by default in Next.js 16
 export const dynamic = 'force-dynamic'
@@ -14,7 +16,7 @@ export const dynamic = 'force-dynamic'
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Api-Key',
 }
 
 export async function OPTIONS() {
@@ -32,6 +34,26 @@ export async function GET(request: NextRequest) {
       { success: false, error: 'MISSING_ADDRESS', message: 'Query param ?address= is required.' },
       { status: 400, headers: CORS_HEADERS }
     )
+  }
+
+  // Optional API key auth — unauthenticated requests still work (test UI, free tier)
+  const apiKey = request.headers.get('x-api-key') || searchParams.get('api_key')
+  let keyData: ApiKeyRecord | null = null
+
+  if (apiKey) {
+    const authResult = await validateApiKey(apiKey)
+    if (!authResult.valid) {
+      return Response.json(
+        {
+          success: false,
+          error: 'INVALID_KEY',
+          message: authResult.error,
+          ...(authResult.upgrade_url && { upgrade_url: authResult.upgrade_url }),
+        },
+        { status: 401, headers: CORS_HEADERS }
+      )
+    }
+    keyData = authResult.keyData
   }
 
   // Geocode
@@ -59,7 +81,7 @@ export async function GET(request: NextRequest) {
   ])
 
   if (!zoneResult) {
-    logRequest({ addressInput, lat, lng, zoneCode: null, request })
+    logRequest({ addressInput, lat, lng, zoneCode: null, keyId: keyData?.id ?? null, request })
     return Response.json(
       {
         success: false,
@@ -82,7 +104,7 @@ export async function GET(request: NextRequest) {
     .eq('council', council)
     .single()
 
-  logRequest({ addressInput, lat, lng, zoneCode, request })
+  logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, request })
 
   if (dbError || !rules) {
     return Response.json(
@@ -149,6 +171,13 @@ export async function GET(request: NextRequest) {
         disclaimer:
           'Indicative only. Rules may be affected by overlays, neighbourhood plans, or recent amendments not reflected here. Always verify with the relevant council before making development decisions.',
         response_ms: responseMs,
+        auth: {
+          authenticated: keyData !== null,
+          plan: keyData?.plan ?? 'unauthenticated',
+          ...(keyData === null && {
+            note: 'Unauthenticated requests are rate limited. Get a free API key at zoneiq.com.au',
+          }),
+        },
       },
     },
     { status: 200, headers: CORS_HEADERS }
@@ -161,6 +190,7 @@ function logRequest(opts: {
   lat: number | null
   lng: number | null
   zoneCode: string | null
+  keyId: string | null
   request: NextRequest
 }) {
   const db = createServiceClient()
