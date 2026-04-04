@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "ZoneIQ — SEQ Planning Zone API",
-    "description": "Look up planning zones, development rules, and overlays for any Brisbane, Gold Coast, or Moreton Bay property. Returns zone code, permitted uses, height limits, setbacks, site coverage, flood overlay, character overlay, and school catchments. Powered by 69,845 zone polygons from Brisbane City Plan 2014, Gold Coast City Plan 2016, and Moreton Bay Regional Council Planning Scheme.",
+    "description": "Look up planning zones, development rules, and overlays for any Brisbane, Gold Coast, Moreton Bay, or Sunshine Coast property. Returns zone code, permitted uses, height limits, setbacks, site coverage, flood overlay, character overlay, and school catchments. Powered by 175,049 zone polygons from Brisbane City Plan 2014, Gold Coast City Plan 2016, Moreton Bay Regional Council Planning Scheme, and Sunshine Coast Planning Scheme 2014.",
     "version": "1.0.0",
     "contact": {
       "email": "hello@zoneiq.com.au"

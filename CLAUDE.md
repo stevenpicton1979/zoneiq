@@ -12,7 +12,7 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 ## Stack
 - Next.js 14 app router + Vercel serverless
 - Supabase PostGIS for spatial queries
-- 69,845 zone polygons across Brisbane, Gold Coast, Moreton Bay
+- 175,049 zone polygons across Brisbane, Gold Coast, Moreton Bay, Sunshine Coast
 
 ## Key Files
 - app/api/lookup/route.ts — main lookup endpoint
