@@ -1,0 +1,33 @@
+# ZoneIQ Backlog
+
+## How this works
+Claude Code reads this file at the start of every session and works through tasks marked [ ] from top to bottom. Mark [x] when done. Edit via GitHub.com on your phone — no laptop needed.
+
+## Currently building
+- [ ] Sprint 8: Bushfire Prone Area overlay (may already be done — check first)
+
+## Ready to build next
+- [ ] Sprint 9: QLD Heritage overlays — State Heritage Register + BCC local heritage. Add as heritage_overlays table. Return overlays.heritage with is_heritage, heritage_type (state/local), heritage_name.
+- [ ] Sprint 10: Aircraft noise contours — Brisbane Airport + Gold Coast Airport ANEF data from Airservices Australia. Add as noise_overlays table. Return has_noise_overlay, anef_contour.
+- [ ] Sprint 11: Ipswich City Council zone expansion — ArcGIS REST API same pattern as Moreton Bay.
+- [ ] Sprint 12: Logan City Council zone expansion — ArcGIS REST API pattern.
+- [ ] Sprint 13: Redland City Council zone expansion — ArcGIS REST API pattern.
+- [ ] Sprint 14: Contaminated land live lookup — QLD MapsOnline API, query by coordinate, no bulk import.
+- [ ] Sprint 15: Acid sulfate soil overlays — QLD Spatial Catalogue.
+- [ ] Update RapidAPI listing description to reflect 175,049 polygons and 4 councils.
+- [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
+
+## Ideas to spec
+- [ ] Development application tracking — Brisbane open data, DAs near an address
+- [ ] Powerline easement overlays — Energex GIS data
+- [ ] Noosa Shire Council zone expansion
+- [ ] NSW expansion research
+
+## Done
+- [x] Sprint 1-2: Brisbane zones + PostGIS + flood/character/school overlays
+- [x] Sprint 3: Gold Coast expansion
+- [x] Sprint 4: Moreton Bay expansion
+- [x] Sprint 5: API keys + nearest polygon fallback + pricing page
+- [x] Sprint 6: RapidAPI proxy auth + OpenAPI spec
+- [x] Sprint 7: Sunshine Coast expansion (106,204 polygons, 175,049 total)
+- [x] Sprint 8: Bushfire Prone Area overlay
