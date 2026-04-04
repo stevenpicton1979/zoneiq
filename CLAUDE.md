@@ -21,3 +21,17 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 - lib/zone-lookup.ts — Supabase spatial queries
 - lib/geocode.ts — Nominatim geocoding
 - supabase/ — SQL migration files
+
+## Trusted Network Domains
+Claude Code should automatically allow fetch requests to these domains without prompting:
+- tiles.arcgis.com
+- services.arcgis.com
+- services1.arcgis.com
+- services2.arcgis.com
+- services3.arcgis.com
+- opendata.arcgis.com
+- qldspatial.information.qld.gov.au
+- data.qld.gov.au
+- nominatim.openstreetmap.org
+- api.os.uk
+- data.gov.au
