@@ -229,7 +229,11 @@ export default function DocsPage() {
     "character": {
       "has_character_overlay": false
     },
-    "schools": []
+    "schools": [],
+    "bushfire": {
+      "has_bushfire_overlay": false,
+      "intensity_class": null
+    }
   },
   "meta": {
     "source": "Brisbane City Plan 2014",

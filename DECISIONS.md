@@ -322,6 +322,36 @@ Without this, all RapidAPI requests will fail with "Invalid RapidAPI proxy secre
 
 ---
 
+## D38 — Bushfire data source: QFES BPA via ArcGIS Online proxy (no auth required)
+
+**Decision:** Bushfire Prone Area data downloaded from `utility.arcgis.com` ArcGIS Online proxy for QFES's hosted BPA layer (item `8ac1ba8eccee472fbd0e7a57bf3ad320`, owner `PublicSafetyQld_Data`). No authentication required. Licensed Creative Commons Attribution 4.0.
+
+**Why:** The canonical QFES FeatureServer (`gisext.qfes.qld.gov.au`) requires a token. The `data.qld.gov.au` portal does not offer a direct bulk download — resources are links to the QSpatial catalogue search, not file downloads. The ArcGIS Online proxy is the only unauthenticated path to the full dataset.
+
+**How to apply:** If the proxy URL changes, resolve via ArcGIS sharing API using item ID `8ac1ba8eccee472fbd0e7a57bf3ad320`. Filter by LGA IN clause for SEQ (13 LGAs, ~134,338 features).
+
+---
+
+## D39 — Bushfire intensity class field: `class` → mapped to very_high/high/medium/buffer
+
+**Decision:** Source field is `class` with full English strings. Mapped to short codes stored in `bushfire_overlays.intensity_class`:
+- `"Very High Potential Bushfire Intensity"` → `very_high`
+- `"High Potential Bushfire Intensity"` → `high`
+- `"Medium Potential Bushfire Intensity"` → `medium`
+- `"Potential Impact Buffer"` → `buffer`
+
+**Why:** Short codes are consistent with existing pattern (risk_level in flood_overlays: 'high'/'medium'/'low'). Shorter codes also simplify API consumer logic.
+
+---
+
+## D40 — Bushfire GeoJSON is WGS84 — no ST_Transform needed
+
+**Decision:** `import-bushfire-overlays.ts` uses `ST_Multi(ST_GeomFromGeoJSON(...))::geometry(MultiPolygon, 4326)` directly. No `ST_Transform`.
+
+**Why:** ArcGIS FeatureServer with `outSR=4326&f=geojson` auto-reprojects to WGS84 before returning. Confirmed by inspecting first coordinate: `[152.74, -27.56]` — clearly lat/lng in Brisbane region, not projected metres.
+
+---
+
 ## D35 — Sunshine Coast zone code field: LABEL (full strings with "Zone" suffix)
 
 **Decision:** Sunshine Coast zone codes stored in `zone_geometries.zone_code` and `zone_rules.zone_code` are full English strings from the `LABEL` GeoJSON property, including the "Zone" suffix (e.g. `"Low Density Residential Zone"`, `"Rural Zone"`).

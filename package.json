@@ -24,7 +24,9 @@
     "seed-moretonbay-rules": "npx tsx scripts/seed-moretonbay-rules.ts",
     "download-sunshinecoast-zones": "npx tsx scripts/download-sunshinecoast-zones.ts",
     "import-sunshinecoast-geometries": "npx tsx scripts/import-sunshinecoast-geometries.ts",
-    "seed-sunshinecoast-rules": "npx tsx scripts/seed-sunshinecoast-rules.ts"
+    "seed-sunshinecoast-rules": "npx tsx scripts/seed-sunshinecoast-rules.ts",
+    "download-bushfire-overlays": "npx tsx scripts/download-bushfire-overlays.ts",
+    "import-bushfire-overlays": "npx tsx scripts/import-bushfire-overlays.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
