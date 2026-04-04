@@ -191,3 +191,37 @@ All ambiguity decisions logged here. No questions asked — decided and document
 5. Run `npm run import-geometries` (~26,360 features, takes a few minutes)
 6. Verify in Supabase: `SELECT get_zone_for_point(-27.4612, 153.0089);` → should return a zone code
 7. Deploy updated `zone-lookup.ts` and `route.ts`
+
+---
+
+## D20 — Gold Coast zone code field: LVL1_ZONE (full English strings)
+
+**Decision:** Gold Coast zone codes stored in `zone_geometries.zone_code` and `zone_rules.zone_code` are full English strings from the `LVL1_ZONE` GeoJSON property (e.g. `"Low density residential"`, `"Centre"`).
+
+**Reason:** The ArcGIS feature data uses `LVL1_ZONE` as the zone identifier — it was not in the original auto-detect candidates list. Discovered by logging first feature properties from the download script. 24 unique values confirmed.
+
+**Impact:** Brisbane uses short codes (LDR, MDR). Gold Coast uses full strings. No actual collision. Composite PK `(zone_code, council)` on `zone_rules` is correct.
+
+---
+
+## D21 — Gold Coast import: DELETE not TRUNCATE
+
+**Decision:** `import-goldcoast-geometries.ts` uses `DELETE FROM zone_geometries WHERE council = 'goldcoast'` before inserting, not `TRUNCATE`.
+
+**Reason:** Brisbane rows must be preserved. Truncate would destroy all data. Council-scoped DELETE is safe to re-run.
+
+---
+
+## D22 — Gold Coast: no flood/character/schools overlay
+
+**Decision:** Sprint 3 does not add flood, character, or school catchment data for Gold Coast. The overlay RPCs return empty/false for Gold Coast addresses.
+
+**Reason:** Overlay data is BCC-specific. Gold Coast overlays are a future sprint item.
+
+---
+
+## D23 — `get_zone_for_point` return type changed to jsonb
+
+**Decision:** The RPC now returns `jsonb` with `{zone_code, council}` instead of plain text.
+
+**Reason:** Required to distinguish Brisbane from Gold Coast zones at the API layer. `zone-lookup.ts` updated to return `{zone_code, council} | null`.
