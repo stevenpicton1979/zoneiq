@@ -26,7 +26,8 @@
     "import-sunshinecoast-geometries": "npx tsx scripts/import-sunshinecoast-geometries.ts",
     "seed-sunshinecoast-rules": "npx tsx scripts/seed-sunshinecoast-rules.ts",
     "download-bushfire-overlays": "npx tsx scripts/download-bushfire-overlays.ts",
-    "import-bushfire-overlays": "npx tsx scripts/import-bushfire-overlays.ts"
+    "import-bushfire-overlays": "npx tsx scripts/import-bushfire-overlays.ts",
+    "import-heritage-overlays": "npx tsx scripts/import-heritage-overlays.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",

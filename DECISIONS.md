@@ -322,6 +322,26 @@ Without this, all RapidAPI requests will fail with "Invalid RapidAPI proxy secre
 
 ---
 
+## D41 — Heritage data sources: QLD State Heritage Register + BCC Local Heritage Area overlay
+
+**Decision:** Two datasets combined into one `heritage_overlays` table:
+1. **State heritage** — QLD Heritage Council / DETSI FeatureServer at `spatial-gis.information.qld.gov.au`. ~1,800 named polygon features, fields: `placename`, `place_id`. Heritage Act 1992. CC-BY 4.0. No auth required.
+2. **Local heritage** — BCC City Plan 2014 local heritage area overlay at `services2.arcgis.com/dEKgZETqwmDAh1rP`. ~1,857 polygon features, fields: `OVL2_DESC`="Local heritage area". No individual place names in the spatial layer. CC-BY 4.0. No auth.
+
+**Why:** BCC's individual heritage place register (heritage.brisbane.qld.gov.au, Arches platform) has no public ArcGIS FeatureServer or bulk GeoJSON endpoint. The BCC overlay polygons are the best available spatial data — they identify heritage-controlled areas even without individual names.
+
+**How to apply:** `heritage_type='state'` gets priority over `'local'` in the RPC ORDER BY. State result includes `place_id` (QHR number); local result has `place_id=null`.
+
+---
+
+## D42 — Heritage table: council=null for state heritage, 'brisbane' for BCC local
+
+**Decision:** `council` column is NULL for state heritage places (they are registered statewide, not council-specific) and `'brisbane'` for BCC local heritage overlay polygons.
+
+**Why:** State heritage places can span multiple LGAs and are regulated by state government regardless of council. BCC local heritage is council-specific.
+
+---
+
 ## D38 — Bushfire data source: QFES BPA via ArcGIS Online proxy (no auth required)
 
 **Decision:** Bushfire Prone Area data downloaded from `utility.arcgis.com` ArcGIS Online proxy for QFES's hosted BPA layer (item `8ac1ba8eccee472fbd0e7a57bf3ad320`, owner `PublicSafetyQld_Data`). No authentication required. Licensed Creative Commons Attribution 4.0.

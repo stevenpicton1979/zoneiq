@@ -233,6 +233,12 @@ export default function DocsPage() {
     "bushfire": {
       "has_bushfire_overlay": false,
       "intensity_class": null
+    },
+    "heritage": {
+      "is_heritage": false,
+      "heritage_type": null,
+      "heritage_name": null,
+      "place_id": null
     }
   },
   "meta": {
