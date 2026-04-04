@@ -1,10 +1,10 @@
 import { createServiceClient } from '@/lib/supabase'
 
-export async function getZoneForPoint(lat: number, lng: number): Promise<string | null> {
+export async function getZoneForPoint(lat: number, lng: number): Promise<{ zone_code: string; council: string } | null> {
   const db = createServiceClient()
   const { data, error } = await db.rpc('get_zone_for_point', { lat, lng })
   if (error || data == null) return null
-  return data as string
+  return data as { zone_code: string; council: string }
 }
 
 export async function getFloodForPoint(lat: number, lng: number): Promise<object> {

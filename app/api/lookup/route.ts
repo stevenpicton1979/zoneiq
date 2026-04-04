@@ -51,25 +51,27 @@ export async function GET(request: NextRequest) {
   const { lat, lng, address_resolved } = geocoded
 
   // Run all spatial lookups in parallel
-  const [zoneCode, floodData, characterData, schoolsData] = await Promise.all([
+  const [zoneResult, floodData, characterData, schoolsData] = await Promise.all([
     getZoneForPoint(lat, lng),
     getFloodForPoint(lat, lng),
     getCharacterForPoint(lat, lng),
     getSchoolsForPoint(lat, lng),
   ])
 
-  if (!zoneCode) {
+  if (!zoneResult) {
     logRequest({ addressInput, lat, lng, zoneCode: null, request })
     return Response.json(
       {
         success: false,
         error: 'OUTSIDE_COVERAGE',
         message:
-          'Address is outside Brisbane City Council boundary. Coverage is currently Brisbane only.',
+          'Address is outside coverage area. Coverage is currently Brisbane City Council and Gold Coast City Council.',
       },
       { status: 404, headers: CORS_HEADERS }
     )
   }
+
+  const { zone_code: zoneCode, council } = zoneResult
 
   // Zone rules from DB
   const db = createServiceClient()
@@ -77,6 +79,7 @@ export async function GET(request: NextRequest) {
     .from('zone_rules')
     .select('*')
     .eq('zone_code', zoneCode)
+    .eq('council', council)
     .single()
 
   logRequest({ addressInput, lat, lng, zoneCode, request })
@@ -88,6 +91,7 @@ export async function GET(request: NextRequest) {
         error: 'ZONE_NOT_SEEDED',
         message: 'Zone found but rules not yet available.',
         zone_code: zoneCode,
+        council,
       },
       { status: 404, headers: CORS_HEADERS }
     )
@@ -108,6 +112,7 @@ export async function GET(request: NextRequest) {
         code: rules.zone_code,
         name: rules.zone_name,
         category: rules.zone_category,
+        council,
       },
       rules: {
         max_height_m: rules.max_height_m,
@@ -136,11 +141,11 @@ export async function GET(request: NextRequest) {
         schools: schoolsData,
       },
       meta: {
-        source: 'Brisbane City Plan 2014',
+        source: council === 'goldcoast' ? 'Gold Coast City Plan 2016' : 'Brisbane City Plan 2014',
         source_url: rules.source_url,
         last_verified: rules.last_verified,
         disclaimer:
-          'Indicative only. Rules may be affected by overlays, neighbourhood plans, or recent amendments not reflected here. Always verify with Brisbane City Council before making development decisions.',
+          'Indicative only. Rules may be affected by overlays, neighbourhood plans, or recent amendments not reflected here. Always verify with the relevant council before making development decisions.',
         response_ms: responseMs,
       },
     },
