@@ -282,11 +282,12 @@ export default function DocsPage() {
             {/* Coverage */}
             <section id="coverage">
               <h2 className="text-xl font-bold text-zinc-900 mb-4">Coverage</h2>
-              <div className="grid gap-4 sm:grid-cols-3 mb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
                 {[
                   ['Brisbane City Council', 'Brisbane City Plan 2014', '26,358 polygons'],
                   ['Gold Coast City Council', 'Gold Coast City Plan 2016', '29,537 polygons'],
                   ['Moreton Bay Regional Council', 'MBRC Planning Scheme', '13,950 polygons'],
+                  ['Sunshine Coast Regional Council', 'SCC Planning Scheme 2014', '106,204 polygons'],
                 ].map(([council, scheme, count]) => (
                   <div key={council} className="rounded-xl border border-zinc-200 p-4">
                     <div className="font-medium text-zinc-900 text-sm mb-1">{council}</div>
@@ -296,7 +297,7 @@ export default function DocsPage() {
                 ))}
               </div>
               <div className="rounded-lg bg-zinc-50 border border-zinc-200 px-4 py-3 text-sm text-zinc-500">
-                Coming soon: Sunshine Coast (May 2026), Ipswich, Logan, Redland
+                Coming soon: Ipswich, Logan, Redland
               </div>
             </section>
 

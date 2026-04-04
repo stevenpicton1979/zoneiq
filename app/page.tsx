@@ -40,6 +40,7 @@ const EXAMPLE_ADDRESSES = [
   '5 James St, Fortitude Valley QLD 4006',
   '18 Surfers Paradise Blvd, Surfers Paradise QLD 4217',
   '1 Endeavour Blvd, North Lakes QLD 4509',
+  '1 Ocean St, Maroochydore QLD 4558',
 ]
 
 const CATEGORY_STYLES: Record<string, { badge: string; border: string }> = {
@@ -57,6 +58,7 @@ function getCategoryStyle(category: string) {
 function councilLabel(council: string) {
   if (council === 'goldcoast') return 'Gold Coast City Council'
   if (council === 'moretonbay') return 'Moreton Bay Regional Council'
+  if (council === 'sunshinecoast') return 'Sunshine Coast Regional Council'
   return 'Brisbane City Council'
 }
 
@@ -187,7 +189,7 @@ export default function Home() {
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter any Brisbane, Gold Coast or Moreton Bay address…"
+                placeholder="Enter any Brisbane, Gold Coast, Moreton Bay or Sunshine Coast address…"
                 className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
               />
               <button
@@ -404,8 +406,8 @@ export default function Home() {
               <div className="text-2xl mb-3">📍</div>
               <h3 className="font-semibold text-zinc-900 mb-2">Coverage</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Brisbane City Council, Gold Coast City Council, and Moreton Bay Regional Council.{' '}
-                <span className="text-zinc-400">Sunshine Coast coming May 2026.</span>
+                Brisbane City Council, Gold Coast City Council, Moreton Bay Regional Council, and Sunshine Coast Regional Council.{' '}
+                <span className="text-zinc-400">More councils coming soon.</span>
               </p>
             </div>
           </div>
@@ -611,7 +613,7 @@ print(data["rules"]["max_storeys"])
             <div>
               <div className="font-bold text-zinc-900 mb-1">ZoneIQ</div>
               <p className="text-xs text-zinc-400">SEQ&rsquo;s planning zone API</p>
-              <p className="text-xs text-zinc-400 mt-1">Coverage: Brisbane · Gold Coast · Moreton Bay</p>
+              <p className="text-xs text-zinc-400 mt-1">Coverage: Brisbane · Gold Coast · Moreton Bay · Sunshine Coast</p>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-zinc-400">
               <a href="/docs" className="hover:text-zinc-700">API Docs</a>
@@ -620,6 +622,7 @@ print(data["rules"]["max_storeys"])
               <a href="https://cityplan.brisbane.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">Brisbane City Plan 2014</a>
               <a href="https://cityplan.goldcoast.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">Gold Coast City Plan 2016</a>
               <a href="https://planning.moretonbay.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">MBRC Planning Scheme</a>
+              <a href="https://planning.sunshinecoast.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">SCC Planning Scheme 2014</a>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-zinc-100 text-xs text-zinc-400">

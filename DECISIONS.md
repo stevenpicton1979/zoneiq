@@ -322,6 +322,32 @@ Without this, all RapidAPI requests will fail with "Invalid RapidAPI proxy secre
 
 ---
 
+## D35 — Sunshine Coast zone code field: LABEL (full strings with "Zone" suffix)
+
+**Decision:** Sunshine Coast zone codes stored in `zone_geometries.zone_code` and `zone_rules.zone_code` are full English strings from the `LABEL` GeoJSON property, including the "Zone" suffix (e.g. `"Low Density Residential Zone"`, `"Rural Zone"`).
+
+**Reason:** Discovered by downloading and logging first feature properties. 22 unique values confirmed. The "Zone" suffix is part of the LABEL value in the source data — stored verbatim to ensure exact match between geometry and rules tables.
+
+**Impact:** Zone codes differ in style from other councils (Brisbane: short codes; Gold Coast/Moreton Bay: strings without "Zone" suffix). Composite PK `(zone_code, council)` ensures no collisions.
+
+---
+
+## D36 — Sunshine Coast GeoJSON is already WGS84 — no reprojection needed
+
+**Decision:** `import-sunshinecoast-geometries.ts` uses `ST_Multi(ST_GeomFromGeoJSON(...))::geometry(MultiPolygon, 4326)` directly, with no `ST_Transform`.
+
+**Reason:** Although the ArcGIS service is SCC-specific, the `f=geojson&outSR=4326` parameters cause ArcGIS to automatically reproject coordinates to WGS84 before returning. Confirmed by inspecting first coordinate: `[152.875, -26.542]` — clearly lat/lng in the Sunshine Coast region, not projected metres.
+
+---
+
+## D37 — Sunshine Coast: 106,204 features across 22 zones
+
+**Decision:** Full 106,204 polygon dataset imported. 22 distinct zone types across the Sunshine Coast LGA.
+
+**Reason:** Largest single council dataset imported (Gold Coast: 29,537; Moreton Bay: 13,950; Brisbane: 26,358). No subsetting — full coverage required for complete address matching. Import completed in ~25 minutes using one-row-at-a-time approach with BATCH_SIZE=100.
+
+---
+
 ## D34 — OpenAPI spec at public/rapidapi-openapi.json
 
 **Decision:** Created `public/rapidapi-openapi.json` as an OpenAPI 3.0 spec for RapidAPI listing. Security scheme is `X-RapidAPI-Key` (apiKey in header) per RapidAPI convention.
