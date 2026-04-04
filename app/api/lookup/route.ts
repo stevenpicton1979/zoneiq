@@ -1,7 +1,12 @@
 import type { NextRequest } from 'next/server'
 import { geocodeAddress } from '@/lib/geocode'
 import { createServiceClient } from '@/lib/supabase'
-import { getZoneForPoint } from '@/lib/zone-lookup'
+import {
+  getZoneForPoint,
+  getFloodForPoint,
+  getCharacterForPoint,
+  getSchoolsForPoint,
+} from '@/lib/zone-lookup'
 
 // GET handlers are dynamic by default in Next.js 16
 export const dynamic = 'force-dynamic'
@@ -45,8 +50,13 @@ export async function GET(request: NextRequest) {
 
   const { lat, lng, address_resolved } = geocoded
 
-  // Spatial lookup
-  const zoneCode = await getZoneForPoint(lat, lng)
+  // Run all spatial lookups in parallel
+  const [zoneCode, floodData, characterData, schoolsData] = await Promise.all([
+    getZoneForPoint(lat, lng),
+    getFloodForPoint(lat, lng),
+    getCharacterForPoint(lat, lng),
+    getSchoolsForPoint(lat, lng),
+  ])
 
   if (!zoneCode) {
     logRequest({ addressInput, lat, lng, zoneCode: null, request })
@@ -120,6 +130,11 @@ export async function GET(request: NextRequest) {
         requires_permit: rules.requires_permit_uses,
         prohibited: rules.prohibited_uses,
       },
+      overlays: {
+        flood: floodData,
+        character: characterData,
+        schools: schoolsData,
+      },
       meta: {
         source: 'Brisbane City Plan 2014',
         source_url: rules.source_url,
@@ -142,7 +157,8 @@ function logRequest(opts: {
   request: NextRequest
 }) {
   const db = createServiceClient()
-  void db.from('lookup_log')
+  void db
+    .from('lookup_log')
     .insert({
       address_input: opts.addressInput,
       lat: opts.lat,
