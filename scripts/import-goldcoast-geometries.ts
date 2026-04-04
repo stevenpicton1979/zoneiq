@@ -96,7 +96,7 @@ async function main() {
           VALUES (
             ${String(zoneCode)},
             'goldcoast',
-            ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(feature.geometry)}))::geometry(MultiPolygon, 4326)
+            ST_Transform(ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(feature.geometry)}), 28356))::geometry(MultiPolygon, 28356), 4326)
           )
         `
         inserted++
