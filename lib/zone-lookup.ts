@@ -24,3 +24,9 @@ export async function getSchoolsForPoint(lat: number, lng: number): Promise<obje
   const { data } = await db.rpc('get_schools_for_point', { lat, lng })
   return (data as object[]) ?? []
 }
+
+export async function getBushfireForPoint(lat: number, lng: number): Promise<object> {
+  const db = createServiceClient()
+  const { data } = await db.rpc('get_bushfire_for_point', { lat, lng })
+  return (data as object) ?? { has_bushfire_overlay: false, intensity_class: null, lga: null }
+}
