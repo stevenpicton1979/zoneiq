@@ -27,6 +27,7 @@ export default function DocsPage() {
           <aside className="hidden lg:block w-48 shrink-0">
             <div className="sticky top-24 space-y-1 text-sm text-zinc-500">
               {[
+                ['#rapidapi', 'RapidAPI'],
                 ['#authentication', 'Authentication'],
                 ['#endpoint', 'Endpoint'],
                 ['#parameters', 'Parameters'],
@@ -54,6 +55,59 @@ export default function DocsPage() {
                 <code className="text-zinc-800">https://zoneiq.com.au</code>
               </p>
             </div>
+
+            {/* RapidAPI */}
+            <section id="rapidapi">
+              <h2 className="text-xl font-bold text-zinc-900 mb-4">RapidAPI</h2>
+              <div className="rounded-xl border border-blue-200 bg-blue-50 p-5 mb-4">
+                <p className="text-sm font-medium text-blue-900 mb-1">Available on RapidAPI</p>
+                <p className="text-sm text-blue-700">
+                  ZoneIQ is listed on RapidAPI. Search for <span className="font-mono bg-blue-100 px-1 py-0.5 rounded text-xs">zoneiq</span> at{' '}
+                  <span className="font-mono text-xs">rapidapi.com</span> to subscribe.
+                </p>
+              </div>
+              <div className="space-y-4 text-sm text-zinc-600">
+                <div className="flex gap-3">
+                  <span className="shrink-0 text-zinc-400 w-40">Key</span>
+                  <span>Use your <strong>RapidAPI key</strong> — no separate ZoneIQ key needed. Pass it as the <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs font-mono">X-RapidAPI-Key</code> header (RapidAPI injects this automatically).</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="shrink-0 text-zinc-400 w-40">Base URL</span>
+                  <span>Your RapidAPI endpoint URL differs from <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs font-mono">zoneiq.com.au</code>. Check your RapidAPI dashboard for the correct host.</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="shrink-0 text-zinc-400 w-40">Plans</span>
+                  <div>
+                    <table className="text-sm w-full">
+                      <thead>
+                        <tr className="text-left text-xs text-zinc-400">
+                          <th className="pb-1 pr-6">Plan</th>
+                          <th className="pb-1 pr-6">Requests</th>
+                          <th className="pb-1">Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ['Free', '100/month', '$0'],
+                          ['Basic', '1,000/month', '$29 USD/month'],
+                          ['Pro', '10,000/month', '$99 USD/month'],
+                        ].map(([plan, reqs, price]) => (
+                          <tr key={plan} className="border-t border-zinc-100">
+                            <td className="py-1.5 pr-6 font-medium">{plan}</td>
+                            <td className="py-1.5 pr-6">{reqs}</td>
+                            <td className="py-1.5 text-zinc-500">{price}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <span className="shrink-0 text-zinc-400 w-40">Direct vs RapidAPI</span>
+                  <span>Direct keys (<code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs font-mono">ziq_live_...</code>) and RapidAPI subscriptions are independent. Use whichever suits your workflow.</span>
+                </div>
+              </div>
+            </section>
 
             {/* Authentication */}
             <section id="authentication">

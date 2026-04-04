@@ -287,3 +287,43 @@ All ambiguity decisions logged here. No questions asked — decided and document
 **Why:** All hardcoded URLs (meta, rapidapi.json, cors, docs examples) use `zoneiq.com.au`. Currently live at `zoneiq-sigma.vercel.app`. RapidAPI listing requires a stable custom domain.
 
 **How to apply:** Buy domain → add to Vercel project → update `NEXT_PUBLIC_BASE_URL` env var if needed.
+
+---
+
+## D31 — RapidAPI auth: X-RapidAPI-Proxy-Secret bypasses api_keys table
+
+**Decision:** `validateApiKey()` checks `X-RapidAPI-Proxy-Secret` before the direct key path. If it matches `RAPIDAPI_PROXY_SECRET` env var, the request is treated as authenticated without a DB lookup. Plan is mapped from `X-RapidAPI-Subscription-Plan` header (basic→free, pro→starter, ultra→pro, mega→enterprise).
+
+**Why:** RapidAPI manages its own subscriber keys and billing. We only need to verify that the request actually came through RapidAPI's proxy (via the shared secret), not re-authenticate the subscriber.
+
+**How to apply:** Set `RAPIDAPI_PROXY_SECRET` in Vercel environment variables to the value shown in the RapidAPI dashboard → My APIs → [API] → Security → Proxy Secret. **Must be updated before publishing the listing — the placeholder value in `.env.local` is not secure for production.**
+
+---
+
+## D32 — lookup_log.source column tracks direct vs RapidAPI traffic
+
+**Decision:** Added `source text DEFAULT 'direct'` column to `lookup_log`. Populated as `'direct'` or `'rapidapi'` on every request.
+
+**Why:** Needed to separate organic direct API traffic from RapidAPI subscriber traffic in analytics. RapidAPI traffic is billed through RapidAPI, not directly — the split matters for revenue attribution.
+
+**How to apply:** Run `supabase/sprint6-schema.sql` before deploying Sprint 6. The insert is fire-and-forget so missing the migration won't break requests — errors are silently swallowed.
+
+---
+
+## D33 — RAPIDAPI_PROXY_SECRET env var: must be set in Vercel before publishing listing
+
+**Action required:** Before publishing the ZoneIQ listing on RapidAPI:
+1. Go to RapidAPI dashboard → My APIs → ZoneIQ → Proxy/Gateway tab
+2. Copy the Proxy Secret value
+3. Add to Vercel: Settings → Environment Variables → `RAPIDAPI_PROXY_SECRET`
+4. Redeploy
+
+Without this, all RapidAPI requests will fail with "Invalid RapidAPI proxy secret."
+
+---
+
+## D34 — OpenAPI spec at public/rapidapi-openapi.json
+
+**Decision:** Created `public/rapidapi-openapi.json` as an OpenAPI 3.0 spec for RapidAPI listing. Security scheme is `X-RapidAPI-Key` (apiKey in header) per RapidAPI convention.
+
+**Why:** RapidAPI requires an OpenAPI spec for listing. The spec documents the `/api/lookup` endpoint, all parameters, response schema, and error codes.
