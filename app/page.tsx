@@ -6,6 +6,8 @@ const EXAMPLE_ADDRESSES = [
   '12 Windermere Rd, Ascot QLD 4007',
   '100 Melbourne St, South Brisbane QLD 4101',
   '5 James St, Fortitude Valley QLD 4006',
+  '18 Surfers Paradise Blvd, Surfers Paradise QLD 4217',
+  '10 Elkhorn Ave, Surfers Paradise QLD 4217',
 ]
 
 const CATEGORY_STYLES: Record<string, { badge: string; border: string }> = {
@@ -43,6 +45,7 @@ type LookupResult = {
     code: string
     name: string
     category: string
+    council: string
   }
   rules?: {
     max_height_m: number | null
@@ -149,7 +152,7 @@ export default function Home() {
       <header className="border-b border-zinc-200 bg-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-baseline gap-3">
           <span className="text-xl font-bold tracking-tight text-zinc-900">ZoneIQ</span>
-          <span className="text-sm text-zinc-400">Brisbane Planning Zone API</span>
+          <span className="text-sm text-zinc-400">SEQ Planning Zone API</span>
         </div>
       </header>
 
@@ -161,7 +164,7 @@ export default function Home() {
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter a Brisbane address…"
+              placeholder="Enter a Brisbane or Gold Coast address…"
               className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
             />
             <button
@@ -205,7 +208,13 @@ export default function Home() {
                         <span className="text-xs text-zinc-400 font-mono">{result.zone.code}</span>
                       </div>
                       <h1 className="text-2xl font-bold text-zinc-900">{result.zone.name}</h1>
-                      <p className="mt-1 text-sm text-zinc-500">{result.query?.address_resolved}</p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {result.query?.address_resolved}
+                        {' — '}
+                        <span className="capitalize">
+                          {result.zone.council === 'goldcoast' ? 'Gold Coast City Council' : 'Brisbane City Council'}
+                        </span>
+                      </p>
                     </div>
                     <div className="text-right text-xs text-zinc-400">
                       <div>{result.meta.response_ms}ms</div>
@@ -451,7 +460,7 @@ export default function Home() {
       <footer className="border-t border-zinc-200 bg-white px-6 py-6 mt-12">
         <div className="max-w-4xl mx-auto text-xs text-zinc-400 space-y-1">
           <p>
-            Data source:{' '}
+            Data sources:{' '}
             <a
               href="https://cityplan.brisbane.qld.gov.au"
               className="underline hover:text-zinc-600"
@@ -460,7 +469,16 @@ export default function Home() {
             >
               Brisbane City Plan 2014
             </a>
-            . Indicative only — always verify with Brisbane City Council before making development
+            {' · '}
+            <a
+              href="https://cityplan.goldcoast.qld.gov.au"
+              className="underline hover:text-zinc-600"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Gold Coast City Plan 2016
+            </a>
+            . Indicative only — always verify with the relevant council before making development
             decisions.
           </p>
           <p>Rules may be affected by overlays, neighbourhood plans, or recent amendments.</p>
