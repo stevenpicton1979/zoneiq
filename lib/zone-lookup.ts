@@ -30,3 +30,9 @@ export async function getBushfireForPoint(lat: number, lng: number): Promise<obj
   const { data } = await db.rpc('get_bushfire_for_point', { lat, lng })
   return (data as object) ?? { has_bushfire_overlay: false, intensity_class: null, lga: null }
 }
+
+export async function getHeritageForPoint(lat: number, lng: number): Promise<object> {
+  const db = createServiceClient()
+  const { data } = await db.rpc('get_heritage_for_point', { lat, lng })
+  return (data as object) ?? { is_heritage: false, heritage_type: null, heritage_name: null, place_id: null }
+}

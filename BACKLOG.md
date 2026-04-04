@@ -18,6 +18,7 @@ Claude Code reads this file at the start of every session and works through task
 - [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
 
 ## Ideas to spec
+- [ ] Add basic API tests — Jest or Vitest. Test /api/lookup with known addresses (Brisbane LDR, Gold Coast, Moreton Bay, Sunshine Coast). Verify zone_code, council, overlay fields present. Run in CI on every push via GitHub Actions.
 - [ ] Development application tracking — Brisbane open data, DAs near an address
 - [ ] Powerline easement overlays — Energex GIS data
 - [ ] Noosa Shire Council zone expansion

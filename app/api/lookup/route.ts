@@ -7,6 +7,7 @@ import {
   getCharacterForPoint,
   getSchoolsForPoint,
   getBushfireForPoint,
+  getHeritageForPoint,
 } from '@/lib/zone-lookup'
 import { validateApiKey } from '@/lib/auth'
 import type { ApiKeyRecord } from '@/lib/auth'
@@ -81,12 +82,13 @@ export async function GET(request: NextRequest) {
   const { lat, lng, address_resolved } = geocoded
 
   // Run all spatial lookups in parallel
-  const [zoneResult, floodData, characterData, schoolsData, bushfireData] = await Promise.all([
+  const [zoneResult, floodData, characterData, schoolsData, bushfireData, heritageData] = await Promise.all([
     getZoneForPoint(lat, lng),
     getFloodForPoint(lat, lng),
     getCharacterForPoint(lat, lng),
     getSchoolsForPoint(lat, lng),
     getBushfireForPoint(lat, lng),
+    getHeritageForPoint(lat, lng),
   ])
 
   if (!zoneResult) {
@@ -171,6 +173,7 @@ export async function GET(request: NextRequest) {
         character: characterData,
         schools: schoolsData,
         bushfire: bushfireData,
+        heritage: heritageData,
       },
       meta: {
         source: council === 'goldcoast' ? 'Gold Coast City Plan 2016'
