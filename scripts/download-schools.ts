@@ -32,7 +32,7 @@ const DATASETS = [
 // Brisbane bounding box for filtering (state-wide data is large)
 const BRISBANE_BOUNDS = { latMin: -28.0, latMax: -27.0, lngMin: 152.6, lngMax: 153.6 }
 
-function isInBrisbane(feature: GeoJSON.Feature): boolean {
+function isInBrisbane(feature: GeoJSON.Feature<GeoJSON.Geometry | null>): boolean {
   const geom = feature.geometry
   if (!geom) return false
   // Use the first coordinate to check bounds — good enough for catchment centres

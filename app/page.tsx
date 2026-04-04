@@ -61,6 +61,24 @@ type LookupResult = {
     requires_permit: string[]
     prohibited: string[]
   }
+  overlays?: {
+    flood: {
+      has_flood_overlay: boolean
+      overlay_type?: string
+      flood_category?: string
+      risk_level?: string
+    }
+    character: {
+      has_character_overlay: boolean
+      character_type?: string
+    }
+    schools: Array<{
+      school_name: string
+      school_type: string
+      school_level: string | null
+      suburb: string | null
+    }>
+  }
   meta?: {
     source: string
     source_url: string
@@ -317,6 +335,85 @@ export default function Home() {
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Overlays */}
+                {result.overlays && (
+                  <div className="rounded-xl border border-zinc-200 bg-white p-6">
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-400">
+                      Overlays
+                    </h2>
+                    <div className="space-y-4">
+                      {/* Flood */}
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="text-sm text-zinc-500 w-28 shrink-0">Flood</span>
+                        <div className="flex-1">
+                          {result.overlays.flood.has_flood_overlay ? (
+                            <>
+                              <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                result.overlays.flood.risk_level === 'high' || result.overlays.flood.risk_level === 'medium'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}>
+                                {result.overlays.flood.risk_level === 'high' ? '⚠ Flood Overlay — High Risk'
+                                  : result.overlays.flood.risk_level === 'medium' ? '⚠ Flood Overlay — Medium Risk'
+                                  : 'Flood Overlay — Low Risk'}
+                              </span>
+                              {result.overlays.flood.flood_category && (
+                                <p className="mt-1 text-xs text-zinc-400">{result.overlays.flood.flood_category}</p>
+                              )}
+                            </>
+                          ) : (
+                            <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+                              No Flood Overlay
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {/* Character */}
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="text-sm text-zinc-500 w-28 shrink-0">Character</span>
+                        <div className="flex-1">
+                          {result.overlays.character.has_character_overlay ? (
+                            <>
+                              <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                                Character Overlay
+                              </span>
+                              <p className="mt-1 text-xs text-zinc-400">
+                                Pre-1947 dwelling character controls may apply
+                              </p>
+                            </>
+                          ) : (
+                            <span className="text-xs text-zinc-400">No character overlay</span>
+                          )}
+                        </div>
+                      </div>
+                      {/* Schools */}
+                      <div className="flex items-start gap-4">
+                        <span className="text-sm text-zinc-500 w-28 shrink-0">Schools</span>
+                        <div className="flex-1">
+                          {result.overlays.schools.length > 0 ? (
+                            <ul className="space-y-1.5">
+                              {result.overlays.schools.map((s, i) => (
+                                <li key={i} className="flex items-center gap-2 text-sm">
+                                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                                    s.school_type === 'primary'
+                                      ? 'bg-blue-100 text-blue-700'
+                                      : 'bg-violet-100 text-violet-700'
+                                  }`}>
+                                    {s.school_type === 'primary' ? 'Primary' : 'Secondary'}
+                                  </span>
+                                  <span className="text-zinc-700">{s.school_name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="text-xs text-zinc-400">No state school catchment found</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
