@@ -43,3 +43,4 @@ next-env.d.ts
 # claude
 .claude/
 data/brisbane-flood-river.geojson
+data/goldcoast-zones.geojson

@@ -15,7 +15,10 @@
     "download-schools": "npx tsx scripts/download-schools.ts",
     "import-flood": "npx tsx scripts/import-flood.ts",
     "import-character": "npx tsx scripts/import-character.ts",
-    "import-schools": "npx tsx scripts/import-schools.ts"
+    "import-schools": "npx tsx scripts/import-schools.ts",
+    "download-goldcoast-zones": "npx tsx scripts/download-goldcoast-zones.ts",
+    "import-goldcoast-geometries": "npx tsx scripts/import-goldcoast-geometries.ts",
+    "seed-goldcoast-rules": "npx tsx scripts/seed-goldcoast-rules.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
