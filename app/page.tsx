@@ -8,6 +8,8 @@ const EXAMPLE_ADDRESSES = [
   '5 James St, Fortitude Valley QLD 4006',
   '18 Surfers Paradise Blvd, Surfers Paradise QLD 4217',
   '10 Elkhorn Ave, Surfers Paradise QLD 4217',
+  '1 Endeavour Blvd, North Lakes QLD 4509',
+  '50 Anzac Ave, Redcliffe QLD 4020',
 ]
 
 const CATEGORY_STYLES: Record<string, { badge: string; border: string }> = {
@@ -164,7 +166,7 @@ export default function Home() {
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter a Brisbane or Gold Coast address…"
+              placeholder="Enter a Brisbane, Gold Coast or Moreton Bay address…"
               className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
             />
             <button
@@ -212,7 +214,9 @@ export default function Home() {
                         {result.query?.address_resolved}
                         {' — '}
                         <span className="capitalize">
-                          {result.zone.council === 'goldcoast' ? 'Gold Coast City Council' : 'Brisbane City Council'}
+                          {result.zone.council === 'goldcoast' ? 'Gold Coast City Council'
+                          : result.zone.council === 'moretonbay' ? 'Moreton Bay Regional Council'
+                          : 'Brisbane City Council'}
                         </span>
                       </p>
                     </div>
@@ -477,6 +481,15 @@ export default function Home() {
               rel="noopener noreferrer"
             >
               Gold Coast City Plan 2016
+            </a>
+            {' · '}
+            <a
+              href="https://planning.moretonbay.qld.gov.au"
+              className="underline hover:text-zinc-600"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Moreton Bay Planning Scheme
             </a>
             . Indicative only — always verify with the relevant council before making development
             decisions.

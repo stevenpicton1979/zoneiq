@@ -225,3 +225,27 @@ All ambiguity decisions logged here. No questions asked — decided and document
 **Decision:** The RPC now returns `jsonb` with `{zone_code, council}` instead of plain text.
 
 **Reason:** Required to distinguish Brisbane from Gold Coast zones at the API layer. `zone-lookup.ts` updated to return `{zone_code, council} | null`.
+
+---
+
+## D24 — Moreton Bay zone field: LVL1_ZONE (same as Gold Coast)
+
+**Decision:** Moreton Bay zone codes use the same `LVL1_ZONE` property name as Gold Coast, with full English strings (e.g. `"General residential"`, `"Centre"`).
+
+**Reason:** Discovered by downloading and logging first feature properties. 14 unique values confirmed (12 planning zones + "Not applicable" + "Unzoned"). Both are stored verbatim as zone_code.
+
+---
+
+## D25 — Moreton Bay GeoJSON is already WGS84 — no reprojection needed
+
+**Decision:** `import-moretonbay-geometries.ts` uses `ST_Multi(ST_GeomFromGeoJSON(...))::geometry(MultiPolygon, 4326)` directly, with no `ST_Transform`.
+
+**Reason:** Although the ArcGIS service is named "WebMercator" (EPSG:3857), the `f=geojson` query parameter causes ArcGIS to automatically reproject coordinates to WGS84 before returning. Confirmed by inspecting first coordinate: `[152.865, -27.410]` — clearly lat/lng, not projected metres. Contrast with Gold Coast (EPSG:28356 projected metres) which required explicit `ST_Transform`.
+
+---
+
+## D26 — Moreton Bay: paginated ArcGIS FeatureServer used (1,000/page, 14 pages)
+
+**Decision:** Primary download uses paginated ArcGIS FeatureServer; MBRC Datahub bulk GeoJSON is the fallback.
+
+**Reason:** ArcGIS endpoint has a max record count of 1,000, requiring 14 requests for 13,950 features. The paginated approach succeeded on first attempt so the bulk fallback was not needed. Total: 13,950 features.

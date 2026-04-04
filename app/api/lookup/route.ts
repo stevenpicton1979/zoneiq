@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
         success: false,
         error: 'OUTSIDE_COVERAGE',
         message:
-          'Address is outside coverage area. Coverage is currently Brisbane City Council and Gold Coast City Council.',
+          'Address is outside coverage area. Coverage is currently Brisbane City Council, Gold Coast City Council, and Moreton Bay Regional Council.',
       },
       { status: 404, headers: CORS_HEADERS }
     )
@@ -141,7 +141,9 @@ export async function GET(request: NextRequest) {
         schools: schoolsData,
       },
       meta: {
-        source: council === 'goldcoast' ? 'Gold Coast City Plan 2016' : 'Brisbane City Plan 2014',
+        source: council === 'goldcoast' ? 'Gold Coast City Plan 2016'
+          : council === 'moretonbay' ? 'Moreton Bay Regional Council Planning Scheme'
+          : 'Brisbane City Plan 2014',
         source_url: rules.source_url,
         last_verified: rules.last_verified,
         disclaimer:
