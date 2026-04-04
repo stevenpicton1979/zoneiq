@@ -1,0 +1,74 @@
+{
+  "name": "ZoneIQ — Australian Planning Zone API",
+  "description": "Instant planning zone, development rules, and overlay data for South East Queensland addresses. Returns zone code, height limits, setbacks, site coverage, permitted uses, flood overlay, character overlay, and school catchments for any Brisbane, Gold Coast, or Moreton Bay address.",
+  "baseUrl": "https://zoneiq.com.au",
+  "category": "Data",
+  "tags": ["australia", "property", "planning", "zoning", "brisbane", "gold-coast", "moreton-bay", "real-estate", "proptech", "gis"],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/lookup",
+      "description": "Look up planning zone and development rules for any SEQ address",
+      "parameters": [
+        {
+          "name": "address",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "description": "Full Australian address e.g. '1 George St Brisbane QLD 4000'"
+        },
+        {
+          "name": "X-Api-Key",
+          "in": "header",
+          "required": true,
+          "type": "string",
+          "description": "Your ZoneIQ API key"
+        }
+      ],
+      "response": {
+        "success": true,
+        "query": { "address_input": "string", "address_resolved": "string", "lat": "number", "lng": "number" },
+        "zone": { "code": "string", "name": "string", "category": "string", "council": "string" },
+        "rules": {
+          "max_height_m": "number | null",
+          "max_storeys": "number | null",
+          "max_site_coverage_pct": "number | null",
+          "min_permeability_pct": "number | null",
+          "setbacks": { "front_m": "number | null", "side_m": "number | null", "rear_m": "number | null" },
+          "secondary_dwelling_permitted": "yes | permit_required | no",
+          "short_term_accom_permitted": "yes | permit_required | no",
+          "home_business_permitted": "yes | permit_required | no",
+          "subdivision_min_lot_size_m2": "number | null"
+        },
+        "key_rules": ["string"],
+        "uses": {
+          "permitted": ["string"],
+          "requires_permit": ["string"],
+          "prohibited": ["string"]
+        },
+        "overlays": {
+          "flood": { "has_flood_overlay": "boolean", "risk_level": "none | low | medium | high" },
+          "character": { "has_character_overlay": "boolean" },
+          "schools": [{ "school_name": "string", "school_type": "primary | secondary" }]
+        }
+      }
+    }
+  ],
+  "errors": [
+    { "status": 400, "code": "MISSING_ADDRESS", "description": "No address query parameter provided" },
+    { "status": 401, "code": "INVALID_KEY", "description": "API key is invalid, inactive, or rate-limited" },
+    { "status": 404, "code": "ADDRESS_NOT_FOUND", "description": "Address could not be geocoded" },
+    { "status": 404, "code": "OUTSIDE_COVERAGE", "description": "Address is outside covered council areas" }
+  ],
+  "pricing": {
+    "free":    { "requests_per_day": 100,  "price_aud_per_month": 0  },
+    "starter": { "requests_per_day": 500,  "price_aud_per_month": 29 },
+    "pro":     { "requests_per_day": 5000, "price_aud_per_month": 99 }
+  },
+  "coverage": [
+    "Brisbane City Council",
+    "Gold Coast City Council",
+    "Moreton Bay Regional Council"
+  ],
+  "coming_soon": ["Sunshine Coast", "Ipswich", "Logan", "Redland"]
+}

@@ -249,3 +249,41 @@ All ambiguity decisions logged here. No questions asked — decided and document
 **Decision:** Primary download uses paginated ArcGIS FeatureServer; MBRC Datahub bulk GeoJSON is the fallback.
 
 **Reason:** ArcGIS endpoint has a max record count of 1,000, requiring 14 requests for 13,950 features. The paginated approach succeeded on first attempt so the bulk fallback was not needed. Total: 13,950 features.
+
+---
+
+## D27 — Nearest polygon fallback: ST_DWithin 100m
+
+**Decision:** `get_zone_for_point` uses a `UNION ALL` pattern — exact `ST_Contains` first, then `ST_DWithin(geography, 100)` nearest-neighbour fallback. Outer `LIMIT 1` ensures one result.
+
+**Why:** Polygon boundaries don't always share edges perfectly — small gaps exist at cadastral boundaries and between source datasets. Addresses geocoded onto a road centreline or boundary point frequently fall in these gaps and return NULL. A 100m tolerance catches genuine gap cases without incorrect cross-boundary assignments.
+
+**How to apply:** The SQL is in `supabase/sprint5-schema.sql`. Run before deploying Sprint 5.
+
+---
+
+## D28 — API key auth: unauthenticated requests not blocked
+
+**Decision:** The `/api/lookup` endpoint allows unauthenticated requests. No key = still works, but response includes `meta.auth.note` suggesting a free key.
+
+**Why:** The live demo on the homepage uses the API without a key. Blocking unauthenticated requests would break the demo and create friction for evaluators. Rate limiting unauthenticated requests is deferred to Sprint 6.
+
+**How to apply:** When implementing unauthenticated rate limits in Sprint 6, use IP-based counting with a low ceiling (10/day per IP).
+
+---
+
+## D29 — auth.ts and register-key in TypeScript, not .js
+
+**Decision:** `lib/auth.ts` and `app/api/register-key/route.ts` are TypeScript with Next.js App Router conventions, not the CommonJS `.js` patterns shown in the brief.
+
+**Why:** The project is TypeScript throughout. CommonJS `require/module.exports` is incompatible with the ESM + Next.js App Router setup.
+
+---
+
+## D30 — Domain: zoneiq.com.au needed before launch
+
+**Decision:** Purchase `zoneiq.com.au` and point to Vercel before marketing or RapidAPI listing.
+
+**Why:** All hardcoded URLs (meta, rapidapi.json, cors, docs examples) use `zoneiq.com.au`. Currently live at `zoneiq-sigma.vercel.app`. RapidAPI listing requires a stable custom domain.
+
+**How to apply:** Buy domain → add to Vercel project → update `NEXT_PUBLIC_BASE_URL` env var if needed.
