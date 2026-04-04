@@ -1,0 +1,128 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ZoneIQ — SEQ Planning Zone API",
+    "description": "Look up planning zones, development rules, and overlays for any Brisbane, Gold Coast, or Moreton Bay property. Returns zone code, permitted uses, height limits, setbacks, site coverage, flood overlay, character overlay, and school catchments. Powered by 69,845 zone polygons from Brisbane City Plan 2014, Gold Coast City Plan 2016, and Moreton Bay Regional Council Planning Scheme.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "hello@zoneiq.com.au"
+    }
+  },
+  "servers": [
+    { "url": "https://zoneiq.com.au" }
+  ],
+  "paths": {
+    "/api/lookup": {
+      "get": {
+        "summary": "Look up planning zone for an address",
+        "description": "Geocodes the address and returns the planning zone, development rules, and overlays for the property.",
+        "operationId": "lookupZone",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "required": true,
+            "description": "Full property address including suburb and state. E.g. '42 Smith Street Chermside QLD'",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful zone lookup",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "query": {
+                      "type": "object",
+                      "properties": {
+                        "address_input": { "type": "string" },
+                        "address_resolved": { "type": "string" },
+                        "lat": { "type": "number" },
+                        "lng": { "type": "number" }
+                      }
+                    },
+                    "zone": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string", "example": "LDR" },
+                        "name": { "type": "string", "example": "Low Density Residential" },
+                        "category": { "type": "string", "example": "residential" },
+                        "council": { "type": "string", "example": "brisbane" }
+                      }
+                    },
+                    "rules": {
+                      "type": "object",
+                      "properties": {
+                        "max_height_m": { "type": "number", "nullable": true },
+                        "max_storeys": { "type": "integer", "nullable": true },
+                        "max_site_coverage_pct": { "type": "number", "nullable": true },
+                        "min_permeability_pct": { "type": "number", "nullable": true },
+                        "setbacks": {
+                          "type": "object",
+                          "properties": {
+                            "front_m": { "type": "number", "nullable": true },
+                            "side_m": { "type": "number", "nullable": true },
+                            "rear_m": { "type": "number", "nullable": true }
+                          }
+                        },
+                        "secondary_dwelling_permitted": { "type": "string" },
+                        "short_term_accom_permitted": { "type": "string" },
+                        "home_business_permitted": { "type": "string" },
+                        "subdivision_min_lot_size_m2": { "type": "number", "nullable": true }
+                      }
+                    },
+                    "overlays": {
+                      "type": "object",
+                      "properties": {
+                        "flood": {
+                          "type": "object",
+                          "properties": {
+                            "has_flood_overlay": { "type": "boolean" },
+                            "risk_level": { "type": "string" }
+                          }
+                        },
+                        "character": {
+                          "type": "object",
+                          "properties": {
+                            "has_character_overlay": { "type": "boolean" }
+                          }
+                        },
+                        "schools": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "school_name": { "type": "string" },
+                              "school_type": { "type": "string" },
+                              "school_level": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing address parameter" },
+          "401": { "description": "Invalid or missing API key" },
+          "404": { "description": "Address not found or outside coverage area" }
+        },
+        "security": [{ "ApiKeyHeader": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-RapidAPI-Key"
+      }
+    }
+  }
+}
