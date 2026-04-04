@@ -34,18 +34,12 @@ if (!process.env.DATABASE_URL) {
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
 
-// Try common BCC property names for character type
+// Actual BCC field: ovl2_cat e.g. "CHA_DHC", ovl2_desc e.g. "Dwelling house character"
+// Use ovl2_desc as the human-readable character_type
 function extractCharacterType(props: Record<string, unknown> | null): string | null {
   if (!props) return null
-  const candidates = [
-    'character_type', 'overlay_type', 'category', 'description',
-    'char_type', 'type', 'name', 'class', 'character_area',
-    'character_overlay', 'overlay', 'character',
-  ]
-  for (const key of candidates) {
-    if (props[key] != null) return String(props[key])
-  }
-  return null
+  return String(props['ovl2_desc'] ?? props['ovl2_cat'] ?? props['cat_desc'] ?? '')
+    .trim() || null
 }
 
 interface GeoJSONFeature {

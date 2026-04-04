@@ -38,36 +38,46 @@ if (!process.env.DATABASE_URL) {
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' })
 
-// Risk level mapping — handles various BCC field value formats
-// Normalises to lowercase and strips spaces before matching
-function mapRiskLevel(rawCategory: string | null | undefined): string {
+// Risk level mapping for Brisbane River flood planning areas.
+// Actual field: ovl2_cat (e.g. "FHA_R1", "FHA_R2A", "FHA_R2B", "FHA_R3", "FHA_R4", "FHA_R5")
+// Also handles description text like "Brisbane River flood planning area 2b"
+function mapRiverRiskLevel(rawCategory: string | null | undefined): string {
   if (!rawCategory) return 'unknown'
-  const normalised = rawCategory.toLowerCase().replace(/[\s-]/g, '_')
-  if (/fpa_?1$|area_?1$|planning_area_1$/.test(normalised)) return 'high'
-  if (/fpa_?2a$|area_?2a$|planning_area_2a$/.test(normalised)) return 'high'
-  if (/fpa_?2b$|area_?2b$|planning_area_2b$/.test(normalised)) return 'medium'
-  if (/fpa_?3$|area_?3$|planning_area_3$/.test(normalised)) return 'medium'
-  if (/fpa_?4$|area_?4$|planning_area_4$/.test(normalised)) return 'low'
-  if (/fpa_?5$|area_?5$|planning_area_5$/.test(normalised)) return 'low'
+  const n = rawCategory.toLowerCase().replace(/[\s\-_]/g, '')
+  if (/r1$|area1$|fpa1$/.test(n)) return 'high'
+  if (/r2a$|area2a$|fpa2a$/.test(n)) return 'high'
+  if (/r2b$|area2b$|fpa2b$/.test(n)) return 'medium'
+  if (/r3$|area3$|fpa3$/.test(n)) return 'medium'
+  if (/r4$|area4$|fpa4$/.test(n)) return 'low'
+  if (/r5$|area5$|fpa5$/.test(n)) return 'low'
   return 'unknown'
 }
 
-// Try common BCC field names for the flood category
-function extractFloodCategory(props: Record<string, unknown> | null): string | null {
+// Risk level mapping for overland flow.
+// Actual field: FLOOD_RISK with values "Low", "Medium", "High"
+function mapOverlandRiskLevel(rawRisk: string | null | undefined): string {
+  if (!rawRisk) return 'unknown'
+  const n = rawRisk.toLowerCase()
+  if (n === 'high') return 'high'
+  if (n === 'medium') return 'medium'
+  if (n === 'low') return 'low'
+  return 'unknown'
+}
+
+// Extract flood category for Brisbane River dataset
+// Primary field: ovl2_cat (BCC code like "FHA_R2B")
+// Fallback: ovl2_desc (human-readable description)
+function extractRiverCategory(props: Record<string, unknown> | null): string | null {
   if (!props) return null
-  const candidates = [
-    'flood_planning_area', 'fpa_code', 'fpa_class', 'category',
-    'flood_level', 'level', 'description', 'flood_type', 'name',
-    'area_type', 'flood_area', 'overlay_type', 'area_code',
-  ]
-  for (const key of candidates) {
-    if (props[key] != null) return String(props[key])
-  }
-  // Return first non-null value if nothing matches
-  for (const val of Object.values(props)) {
-    if (val != null && typeof val === 'string') return val
-  }
-  return null
+  return String(props['ovl2_cat'] ?? props['ovl2_desc'] ?? props['description'] ?? '')
+    .trim() || null
+}
+
+// Extract risk level for overland flow dataset
+// Primary field: FLOOD_RISK (uppercase, direct value "Low"/"Medium"/"High")
+function extractOverlandRiskLevel(props: Record<string, unknown> | null): string {
+  if (!props) return 'unknown'
+  return mapOverlandRiskLevel(String(props['FLOOD_RISK'] ?? props['flood_risk'] ?? ''))
 }
 
 interface GeoJSONFeature {
@@ -109,10 +119,12 @@ async function importDataset(
     const geomType = feature.geometry.type
     if (geomType !== 'Polygon' && geomType !== 'MultiPolygon') { skipped++; continue }
 
-    const floodCategory = extractFloodCategory(feature.properties)
+    const floodCategory = overlayType === 'overland_flow'
+      ? (String(feature.properties?.['FLOOD_RISK'] ?? feature.properties?.['flood_risk'] ?? 'unknown'))
+      : extractRiverCategory(feature.properties)
     const riskLevel = overlayType === 'overland_flow'
-      ? 'medium'
-      : mapRiskLevel(floodCategory)
+      ? extractOverlandRiskLevel(feature.properties)
+      : mapRiverRiskLevel(floodCategory)
 
     try {
       await sql`

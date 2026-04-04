@@ -114,7 +114,7 @@ async function importDataset(
           ${schoolType},
           ${schoolLevel},
           ${suburb},
-          ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(feature.geometry)}))::geometry(MultiPolygon, 4326)
+          ST_Force2D(ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(feature.geometry)})))::geometry(MultiPolygon, 4326)
         )
       `
       inserted++
