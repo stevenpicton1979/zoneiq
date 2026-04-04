@@ -7,7 +7,7 @@ Claude Code reads this file at the start of every session and works through task
 - [ ] Sprint 8: Bushfire Prone Area overlay (may already be done — check first)
 
 ## Ready to build next
-- [ ] Sprint 9: QLD Heritage overlays — State Heritage Register + BCC local heritage. Add as heritage_overlays table. Return overlays.heritage with is_heritage, heritage_type (state/local), heritage_name.
+- [x] Sprint 9: QLD Heritage overlays — State Heritage Register + BCC local heritage. Add as heritage_overlays table. Return overlays.heritage with is_heritage, heritage_type (state/local), heritage_name.
 - [ ] Sprint 10: Aircraft noise contours — Brisbane Airport + Gold Coast Airport ANEF data from Airservices Australia. Add as noise_overlays table. Return has_noise_overlay, anef_contour.
 - [ ] Sprint 11: Ipswich City Council zone expansion — ArcGIS REST API same pattern as Moreton Bay.
 - [ ] Sprint 12: Logan City Council zone expansion — ArcGIS REST API pattern.
