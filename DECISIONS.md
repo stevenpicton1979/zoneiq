@@ -132,6 +132,56 @@ All ambiguity decisions logged here. No questions asked — decided and document
 
 ---
 
+## D17 — Sprint 2: GeoJSON field names discovered at download time
+
+**Flood river (brisbane-flood-river.geojson) — 5128 features:**
+- Key field: `ovl2_cat` — values like `"FHA_R2B"` (FHA = Flood Hazard Area, R = River, 2B = planning area 2b)
+- Human-readable: `ovl2_desc` — `"Brisbane River flood planning area 2b"`
+- Risk mapping: R1→high, R2A→high, R2B→medium, R3→medium, R4→low, R5→low
+- 26 features skipped (geometry type not Polygon/MultiPolygon — likely Point features from geo_point_2d centroid)
+
+**Flood overland (brisbane-flood-overland.geojson) — 2000 features from ArcGIS fallback (BCC Open Data returned 404):**
+- Primary URL 404'd; ArcGIS fallback returned 2000 features (likely paginated cap — full dataset may be larger)
+- Key field: `FLOOD_RISK` — values `"Low"`, `"Medium"`, `"High"` — direct mapping, no interpretation needed
+- 0 features skipped
+
+**Character overlay (brisbane-character-overlay.geojson) — 14164 features:**
+- Key field: `ovl2_desc` = `"Dwelling house character"` (all features same value — single overlay type)
+- Code field: `ovl2_cat` = `"CHA_DHC"`
+- 0 features skipped
+
+**School catchments (KML → GeoJSON via @tmcw/togeojson):**
+- Primary: 1032 total QLD-wide → 311 Brisbane features (filtered by bounding box)
+- Secondary (junior): 274 total → 87 Brisbane features
+- School name in `name` property (togeojson maps KML `<name>` element to top-level `name`)
+- No suburb field in the KML data — suburb stored as null
+- KML coordinates have Z dimension (altitude=0) — required `ST_Force2D()` wrapper in insert
+
+**Import counts:**
+- flood_overlays: 7102 rows (5102 river + 2000 overland)
+- character_overlays: 14164 rows
+- school_catchments: 398 rows (311 primary + 87 secondary)
+
+---
+
+## D18 — Overland flow dataset: ArcGIS 2000-feature cap
+
+**Decision:** Accept 2000 overland flow features from ArcGIS fallback (primary BCC Open Data URL returned 404).
+
+**Reason:** ArcGIS endpoints typically cap at 2000 features. The full overland flow dataset may contain more features. Sprint 2 priority is functionality over completeness. Adding pagination to the ArcGIS fallback is a Sprint 3 item.
+
+**Impact:** Some outer Brisbane suburbs may not show overland flow overlay even if they are affected. The Brisbane River flood data (5102 features) is complete.
+
+---
+
+## D19 — School suburb field: null
+
+**Decision:** `suburb` column is NULL for all school catchments.
+
+**Reason:** The QLD Government school KML files do not include suburb as a separate field. The only properties from togeojson conversion are `name`, `visibility`, `open`, `description` (HTML table), and KML styling fields. Parsing the HTML description table would add fragile complexity. Suburb can be added in a later sprint if needed.
+
+---
+
 ## D16 — Execution order for Sprint 1
 
 1. Enable PostGIS in Supabase SQL editor (done)
