@@ -87,6 +87,19 @@ Searched Airservices Australia, data.gov.au, opendata.arcgis.com, QLD Spatial Ca
 Inside a noise overlay: has_noise_overlay: true, anef_contour: "N25", airport: "Brisbane Airport"
 Outside any overlay: has_noise_overlay: false, anef_contour: null, airport: null
 
+---
+
+## Sprint 11 — Ipswich City Council zone expansion — COMPLETE
+
+- Source: data.gov.au GeoServer WFS (2006 Ipswich Planning Scheme)
+- Geometries: 1,516 polygons inserted (council = 'ipswich')
+- Zone code strategy: NAME field (normalised, sub-area suffixes dropped)
+- Rules: 56 zone_rules entries covering all 1,516 polygons
+- Notable: zone code data had literal \\n in NAME field — fixed in DB
+- Coverage: LGA approximately 1,090 km²
+
+---
+
 ### Session 2 update (2026-04-05)
 
 Re-imported with corrected contour format (integer strings: 20/25/30/35/40 instead of N20/N25).
