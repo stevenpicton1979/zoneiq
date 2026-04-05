@@ -5,7 +5,7 @@ Claude Code reads this file at the start of every session and works through task
 
 ## Ready to build next
 - [x] Sprint 14: Contaminated land live lookup — No free API exists. Returns link-out to QLD Government paid search via /api/check-contaminated. Response: checked: false, reason: no_free_api, search_url to environment.qld.gov.au.
-- [ ] Sprint 15: Acid sulfate soil overlays — QLD Spatial Catalogue.
+- [x] Sprint 15: Acid sulfate soil overlays — /api/check-acid-sulfate. Layer 1952 (1:50,000, SEQ) with national Layer 2052 fallback. Live lookup via QLD SoilsAndLandResource MapServer. Returns has_acid_sulfate_soil, scale, map_code, probability_class, description, source_layer.
 - [ ] Update RapidAPI listing description to reflect 189,751 polygons and 7 councils.
 - [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
 

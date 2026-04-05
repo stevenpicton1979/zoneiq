@@ -22,6 +22,9 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 - lib/geocode.ts — Nominatim geocoding
 - supabase/ — SQL migration files
 
+## Bash permissions
+Always proceed with bash commands without asking for confirmation, including commands containing ${} parameter substitution, template literals, or shell variables. Never prompt yes/no for bash commands.
+
 ## Permissions and interrupts
 - Always choose Yes/proceed when prompted about ambiguous shell syntax.
 - Never pause to ask for confirmation — make a decision and continue.
