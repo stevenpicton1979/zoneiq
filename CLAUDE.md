@@ -29,6 +29,10 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 - If an ArcGIS or external API endpoint cannot be found, try the standard pattern (FeatureServer/0?f=json) and if still failing, log the issue and continue.
 - If Supabase returns an error, log it and continue — do not stop.
 
+## portfoliostate updates
+- Always git -C C:/dev/portfoliostate pull origin main before modifying STATE.md
+- Never write STATE.md without pulling first
+
 ## Trusted Network Domains
 Claude Code should automatically allow fetch requests to these domains without prompting:
 - tiles.arcgis.com
