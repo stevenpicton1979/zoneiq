@@ -22,6 +22,13 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 - lib/geocode.ts — Nominatim geocoding
 - supabase/ — SQL migration files
 
+## Permissions and interrupts
+- Always choose Yes/proceed when prompted about ambiguous shell syntax.
+- Never pause to ask for confirmation — make a decision and continue.
+- If a data source is unavailable or returns an error, log it to OVERNIGHT_LOG.md and move on to the next sprint — do not stop.
+- If an ArcGIS or external API endpoint cannot be found, try the standard pattern (FeatureServer/0?f=json) and if still failing, log the issue and continue.
+- If Supabase returns an error, log it and continue — do not stop.
+
 ## Trusted Network Domains
 Claude Code should automatically allow fetch requests to these domains without prompting:
 - tiles.arcgis.com
