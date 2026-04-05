@@ -4,13 +4,9 @@
 Claude Code reads this file at the start of every session and works through tasks marked [ ] from top to bottom. Mark [x] when done. Edit via GitHub.com on your phone — no laptop needed.
 
 ## Ready to build next
-- [x] Sprint 10: Aircraft noise contours — Brisbane Airport + Gold Coast Airport ANEF data from Airservices Australia. Add as noise_overlays table. Return has_noise_overlay, anef_contour.
-- [ ] Sprint 11: Ipswich City Council zone expansion — ArcGIS REST API same pattern as Moreton Bay.
-- [ ] Sprint 12: Logan City Council zone expansion — ArcGIS REST API pattern.
-- [ ] Sprint 13: Redland City Council zone expansion — ArcGIS REST API pattern.
-- [ ] Sprint 14: Contaminated land live lookup — QLD MapsOnline API, query by coordinate, no bulk import.
+- [ ] Sprint 14: Contaminated land live lookup — QLD MapsOnline API, query by coordinate, no bulk import. Investigation underway — endpoint not yet confirmed.
 - [ ] Sprint 15: Acid sulfate soil overlays — QLD Spatial Catalogue.
-- [ ] Update RapidAPI listing description to reflect 175,049 polygons and 4 councils.
+- [ ] Update RapidAPI listing description to reflect 189,751 polygons and 7 councils.
 - [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
 
 ## Ideas to spec
@@ -29,4 +25,8 @@ Claude Code reads this file at the start of every session and works through task
 - [x] Sprint 7: Sunshine Coast expansion (106,204 polygons, 175,049 total)
 - [x] Sprint 8: Bushfire Prone Area overlay (132,000 SEQ polygons, 4 intensity classes)
 - [x] Sprint 9: QLD Heritage overlays — State Heritage Register (1,800) + BCC Local Heritage Area (1,857) = 3,657 records. API returns is_heritage, heritage_type, heritage_name, place_id.
-- [x] Sprint 10: Aircraft noise contours — Brisbane Airport (BNE) + Archerfield Airport ANEF N20–N35 contours (9 polygons). Source: BCC City Plan 2014 Open Data ArcGIS. Gold Coast Airport (OOL) ANEF data not available via public API. API returns has_noise_overlay, anef_contour, airport.
+- [x] Sprint 10: Aircraft noise contours — BNE (N20–N35) + Archerfield (N20–N30) + Gold Coast Airport (5 contours) = 14 polygons total. Source: BCC City Plan 2014 Open Data ArcGIS + GCCC MapServer. API returns has_noise_overlay, anef_contour, airport.
+- [x] Sprint 11: Ipswich City Council zone expansion — 1,516 polygons (council = 'ipswich'). Source: data.gov.au GeoServer WFS (2006 Ipswich Planning Scheme). 56 zone_rules entries.
+- [x] Sprint 12: Logan City Council zone expansion — 6,920 polygons (council = 'logan'). Source: Logan Planning Scheme 2015 v9.2, ArcGIS Online FeatureServer (EPSG:3857 → 4326). 16 zone_rules entries.
+- [x] Sprint 13: Redland City Council zone expansion — 6,266 polygons (council = 'redland'). Source: Redland City Plan, gis.redland.qld.gov.au MapServer (EPSG:28356 → 4326). 22 zone_rules entries. Required OBJECTID-range pagination.
+- Total zone polygons: 189,751 across 7 councils (Brisbane, Gold Coast, Moreton Bay, Sunshine Coast, Ipswich, Logan, Redland)
