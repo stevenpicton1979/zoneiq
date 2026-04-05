@@ -87,4 +87,10 @@ Searched Airservices Australia, data.gov.au, opendata.arcgis.com, QLD Spatial Ca
 Inside a noise overlay: has_noise_overlay: true, anef_contour: "N25", airport: "Brisbane Airport"
 Outside any overlay: has_noise_overlay: false, anef_contour: null, airport: null
 
+### Session 2 update (2026-04-05)
+
+Re-imported with corrected contour format (integer strings: 20/25/30/35/40 instead of N20/N25).
+Added Gold Coast Airport (GCCC MapServer Layer 7) — 5 contours.
+Total: 14 rows (BRISBANE 6, ARCHERFIELD 3, GOLD_COAST 5).
+
 ---
