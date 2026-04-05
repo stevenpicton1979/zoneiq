@@ -36,3 +36,9 @@ export async function getHeritageForPoint(lat: number, lng: number): Promise<obj
   const { data } = await db.rpc('get_heritage_for_point', { lat, lng })
   return (data as object) ?? { is_heritage: false, heritage_type: null, heritage_name: null, place_id: null }
 }
+
+export async function getNoiseForPoint(lat: number, lng: number): Promise<object> {
+  const db = createServiceClient()
+  const { data } = await db.rpc('get_noise_for_point', { lat, lng })
+  return (data as object) ?? { has_noise_overlay: false, anef_contour: null, airport: null }
+}
