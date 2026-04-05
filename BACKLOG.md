@@ -4,7 +4,7 @@
 Claude Code reads this file at the start of every session and works through tasks marked [ ] from top to bottom. Mark [x] when done. Edit via GitHub.com on your phone — no laptop needed.
 
 ## Ready to build next
-- [ ] Sprint 14: Contaminated land live lookup — QLD MapsOnline API, query by coordinate, no bulk import. Investigation underway — endpoint not yet confirmed.
+- [x] Sprint 14: Contaminated land live lookup — No free API exists. Returns link-out to QLD Government paid search via /api/check-contaminated. Response: checked: false, reason: no_free_api, search_url to environment.qld.gov.au.
 - [ ] Sprint 15: Acid sulfate soil overlays — QLD Spatial Catalogue.
 - [ ] Update RapidAPI listing description to reflect 189,751 polygons and 7 councils.
 - [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
