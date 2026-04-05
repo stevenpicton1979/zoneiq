@@ -41,8 +41,16 @@ Claude Code should automatically allow fetch requests to these domains without p
 - services2.arcgis.com
 - services3.arcgis.com
 - opendata.arcgis.com
+- www.arcgis.com
+- *.arcgis.com
 - qldspatial.information.qld.gov.au
 - data.qld.gov.au
+- cityplanmaps.goldcoast.qld.gov.au
+- *.qld.gov.au
 - nominatim.openstreetmap.org
 - api.os.uk
 - data.gov.au
+- *.gov.au
+- www.airservicesaustralia.com
+- *.airservicesaustralia.com
+- Always choose option 2 "Yes and don't ask again" for any domain under *.arcgis.com, *.qld.gov.au, *.gov.au, *.airservicesaustralia.com, *.supabase.co, *.mapbox.com
