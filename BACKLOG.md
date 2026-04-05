@@ -3,11 +3,7 @@
 ## How this works
 Claude Code reads this file at the start of every session and works through tasks marked [ ] from top to bottom. Mark [x] when done. Edit via GitHub.com on your phone — no laptop needed.
 
-## Currently building
-- [ ] Sprint 8: Bushfire Prone Area overlay (may already be done — check first)
-
 ## Ready to build next
-- [x] Sprint 9: QLD Heritage overlays — State Heritage Register + BCC local heritage. Add as heritage_overlays table. Return overlays.heritage with is_heritage, heritage_type (state/local), heritage_name.
 - [ ] Sprint 10: Aircraft noise contours — Brisbane Airport + Gold Coast Airport ANEF data from Airservices Australia. Add as noise_overlays table. Return has_noise_overlay, anef_contour.
 - [ ] Sprint 11: Ipswich City Council zone expansion — ArcGIS REST API same pattern as Moreton Bay.
 - [ ] Sprint 12: Logan City Council zone expansion — ArcGIS REST API pattern.
@@ -31,4 +27,5 @@ Claude Code reads this file at the start of every session and works through task
 - [x] Sprint 5: API keys + nearest polygon fallback + pricing page
 - [x] Sprint 6: RapidAPI proxy auth + OpenAPI spec
 - [x] Sprint 7: Sunshine Coast expansion (106,204 polygons, 175,049 total)
-- [x] Sprint 8: Bushfire Prone Area overlay
+- [x] Sprint 8: Bushfire Prone Area overlay (132,000 SEQ polygons, 4 intensity classes)
+- [x] Sprint 9: QLD Heritage overlays — State Heritage Register (1,800) + BCC Local Heritage Area (1,857) = 3,657 records. API returns is_heritage, heritage_type, heritage_name, place_id.
