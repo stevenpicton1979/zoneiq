@@ -100,6 +100,25 @@ Outside any overlay: has_noise_overlay: false, anef_contour: null, airport: null
 
 ---
 
+## Sprint 12 — Logan City Council zone expansion — COMPLETE
+
+- Source: Logan Planning Scheme 2015 v9.2 — ArcGIS Online FeatureServer (EPSG:3857 → 4326)
+- Geometries: 6,920 polygons inserted (council = 'logan')
+- Zone codes: 16 distinct zones (Low Density Residential, Centre, Rural, etc.)
+- Rules: 16 zone_rules entries, all polygons matched
+
+---
+
+## Sprint 13 — Redland City Council zone expansion — COMPLETE
+
+- Source: Redland City Plan — gis.redland.qld.gov.au MapServer (EPSG:28356 → 4326)
+- Geometries: 6,266 polygons inserted (council = 'redland')
+- Zone codes: 22 distinct zones (Conservation, Low Density Residential, etc.)
+- Rules: 22 zone_rules entries, all polygons matched
+- Note: MapServer required OBJECTID-range pagination (resultOffset not supported)
+
+---
+
 ### Session 2 update (2026-04-05)
 
 Re-imported with corrected contour format (integer strings: 20/25/30/35/40 instead of N20/N25).
