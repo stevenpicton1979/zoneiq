@@ -7,10 +7,10 @@ Claude Code reads this file at the start of every session and works through task
 - [x] Sprint 14: Contaminated land live lookup — No free API exists. Returns link-out to QLD Government paid search via /api/check-contaminated. Response: checked: false, reason: no_free_api, search_url to environment.qld.gov.au.
 - [x] Sprint 15: Acid sulfate soil overlays — /api/check-acid-sulfate. Layer 1952 (1:50,000, SEQ) with national Layer 2052 fallback. Live lookup via QLD SoilsAndLandResource MapServer. Returns has_acid_sulfate_soil, scale, map_code, probability_class, description, source_layer.
 - [ ] Update RapidAPI listing description to reflect 189,751 polygons and 7 councils.
-- [ ] Add usage dashboard endpoint — authenticated users can check usage vs limit.
+- [x] Add usage dashboard endpoint — authenticated users can check usage vs limit.
 
 ## Ideas to spec
-- [ ] Add basic API tests — Jest or Vitest. Test /api/lookup with known addresses (Brisbane LDR, Gold Coast, Moreton Bay, Sunshine Coast). Verify zone_code, council, overlay fields present. Run in CI on every push via GitHub Actions.
+- [x] Add basic API tests — Jest or Vitest. Test /api/lookup with known addresses (Brisbane LDR, Gold Coast, Moreton Bay, Sunshine Coast). Verify zone_code, council, overlay fields present. Run in CI on every push via GitHub Actions.
 - [ ] Development application tracking — Brisbane open data, DAs near an address
 - [ ] Powerline easement overlays — Energex GIS data
 - [ ] Noosa Shire Council zone expansion

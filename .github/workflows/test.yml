@@ -1,0 +1,31 @@
+name: API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npm test
+        env:
+          # Set API_BASE_URL as a GitHub Actions variable (repo Settings → Variables)
+          # pointing to the production Vercel URL once deployed.
+          # Tests skip gracefully when the URL is unreachable.
+          API_BASE_URL: ${{ vars.API_BASE_URL }}

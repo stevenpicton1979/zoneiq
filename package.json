@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "jest",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -41,12 +42,14 @@
     "@tailwindcss/postcss": "^4",
     "@tmcw/togeojson": "^7.1.2",
     "@types/geojson": "^7946.0.16",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@xmldom/xmldom": "^0.9.9",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "jest": "^30.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
