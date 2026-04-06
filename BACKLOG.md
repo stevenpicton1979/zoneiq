@@ -16,6 +16,41 @@ Claude Code reads this file at the start of every session and works through task
 - [ ] Noosa Shire Council zone expansion
 - [ ] NSW expansion research
 
+## Sprint 16 — QFAO Statewide Flood Fallback [ ]
+
+**Goal:** For addresses outside the 7 councils with existing flood overlay
+data, fall back to the Queensland Floodplain Assessment Overlay (QFAO) API
+instead of returning no data.
+
+**Endpoint:**
+https://services8.arcgis.com/g9mppFwSsmIw9E0Z/arcgis/rest/services/Queensland_floodplain_assessment_overlay/FeatureServer/0/query
+
+**Query pattern:**
+- geometry: point (lng, lat)
+- geometryType: esriGeometryPoint
+- spatialRel: esriSpatialRelIntersects
+- inSR: 4326
+- f: json
+
+**Response fields to use:** SUB_NAME, SUB_NUMBER, QRA_SUPPLY
+
+**Logic:**
+1. Check if address falls within existing 7-council bounding boxes
+2. If yes: use existing Supabase flood data — DO NOT change this path
+3. If no: query QFAO endpoint live at runtime
+4. If QFAO returns a polygon: flag as FLOOD_RISK_POSSIBLE
+5. If QFAO returns nothing: flag as NO_STATE_FLOOD_OVERLAY
+
+**Disclaimer to include in API response for QFAO results:**
+"This flood assessment is based on the Queensland state-level floodplain
+overlay and is not property-specific. Contact your local council for
+detailed flood mapping."
+
+**Rules:**
+- Do NOT ingest QFAO data into Supabase — live query only
+- Do NOT modify existing flood overlay logic for the 7 current councils
+- Do NOT execute this sprint — backlog only
+
 ## Done
 - [x] Sprint 1-2: Brisbane zones + PostGIS + flood/character/school overlays
 - [x] Sprint 3: Gold Coast expansion
