@@ -47,3 +47,6 @@ data/goldcoast-zones.geojson
 data/moretonbay-zones.geojson
 data/sunshinecoast-zones.geojson
 data/bushfire-overlays.geojson
+
+.vercel
+.env*.local
