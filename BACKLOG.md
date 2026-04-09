@@ -24,10 +24,10 @@ Smoke test: New Farm PASS (LMR, flood=true). Partial 200 fix confirmed (West End
 
 ---
 
-## Sprint 18 — ClearOffer Integration Validation + API Telemetry [ ]
+## Sprint 18 — ClearOffer Integration Validation + API Telemetry [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 18"
 
-### [ ] Task 1 — Review ClearOffer ZoneIQ response handling
+### [x] Task 1 — Review ClearOffer ZoneIQ response handling
 In the buyerside repo (main branch), find the serverless function that calls ZoneIQ
 (look for fetch to zoneiq-sigma.vercel.app).
 Confirm all of the following:
@@ -37,11 +37,11 @@ Confirm all of the following:
   d) Handles meta.partial === true — shows disclaimer when zone rules unavailable
 Log findings to OVERNIGHT_LOG.md.
 
-### [ ] Task 2 — Fix any response shape mismatches
+### [x] Task 2 — Fix any response shape mismatches
 If ClearOffer references the pre-Sprint 17 shape (overlays at top level, not nested
 under overlays{}), update all field references. Do not change any UI or Stripe logic.
 
-### [ ] Task 3 — Test 5 Brisbane addresses end-to-end
+### [x] Task 3 — Test 5 Brisbane addresses end-to-end
 Simulate ClearOffer → ZoneIQ calls for:
 1. "8 Fairfield Road, Yeronga QLD 4105"
 2. "18 Montague Road, West End QLD 4101"
@@ -52,7 +52,7 @@ Simulate ClearOffer → ZoneIQ calls for:
 For each log: geocoded lat/lng, zone code, flood result, bushfire result.
 Flag any null flood result for a known flood-affected address.
 
-### [ ] Task 4 — Wire api_usage telemetry
+### [x] Task 4 — Wire api_usage telemetry
 The api_usage table has 0 rows — telemetry is unwired.
 In zoneiq route.ts, before the final successful response return, insert a row into
 api_usage with:
@@ -64,7 +64,7 @@ api_usage with:
   - overlays_returned (array of overlay keys that had data)
 Use try/catch — a failed insert must NOT break the main response.
 
-### [ ] Task 5 — Deploy and verify
+### [x] Task 5 — Deploy and verify
 Vercel MCP deploy to production.
 Run 2 test lookups. Use Supabase MCP to confirm api_usage has rows.
 GitHub MCP commit to zoneiq main: "Sprint 18: ClearOffer response shape validation, api_usage telemetry"

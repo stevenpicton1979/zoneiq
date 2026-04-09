@@ -153,3 +153,67 @@ Post-recovery smoke test results:
 Zone seed: 18 Brisbane rules in DB. Partial 200 fix delivering overlays. Google geocoder live. SC zone not yet seeded — log for future sprint.
 
 ---
+
+## Sprint 18 — ClearOffer Integration Validation + API Telemetry — 2026-04-09
+
+### Task 1 — ClearOffer ZoneIQ response handling review
+
+**File reviewed:** `C:\dev\buyerside\api\submit-email.js`
+
+**Findings:**
+
+a) `rules: null` handling — ✅ PASS
+   - `fetchZoneIQ` returns `data.success ? data : null`
+   - Consumer uses optional chaining (`zoneiq?.overlays?.flood`)
+   - No crash when zone not seeded
+
+b) `response.overlays.flood` shape — ✅ PASS (post-Sprint 17 shape)
+   - Line 106: `zoneiq?.overlays?.flood || { hasFloodOverlay: false, riskLevel: 'none' }`
+   - Correctly reads from `overlays.flood`, not old top-level `response.flood`
+
+c) bushfire, heritage, noise from `response.overlays.*` — ❌ FAIL
+   - `bushfire` not read — missing from response payload entirely
+   - `heritage` not read — missing from response payload entirely
+   - `noise` not read — missing from response payload entirely
+   - Only flood, character, schools currently extracted
+
+d) `meta.partial === true` handling — ❌ FAIL
+   - No partial disclaimer logic; user sees no indication zone rules may be unavailable
+
+### Task 2 — Fixes applied to buyerside
+
+- Added `bushfire: zoneiq?.overlays?.bushfire || null`
+- Added `heritage: zoneiq?.overlays?.heritage || null`
+- Added `noise: zoneiq?.overlays?.noise || null`
+- Added `zoningPartial: zoneiq?.meta?.partial || false`
+- Added `zoningDisclaimer: zoneiq?.meta?.disclaimer || null`
+
+### Task 3 — 5 Brisbane address end-to-end tests
+
+| # | Address | Lat | Lng | Zone | Flood | Bushfire | Notes |
+|---|---------|-----|-----|------|-------|----------|-------|
+| 1 | 8 Fairfield Road, Yeronga QLD 4105 | -27.5009 | 153.0266 | LMR | false | false | PASS |
+| 2 | 18 Montague Road, West End QLD 4101 | -27.4707 | 153.0173 | SC | true (FHA_R5) | false | PASS — partial=true (zone not seeded expected) |
+| 3 | 30 Oxlade Drive, New Farm QLD 4005 | -27.4727 | 153.0505 | LMR | true (FHA_R5) | false | PASS |
+| 4 | 15 Musgrave Road, Red Hill QLD 4059 | -27.4588 | 153.0139 | MU | false | false | PASS |
+| 5 | 42 Wellington Road, East Brisbane QLD 4169 | -27.4871 | 153.0398 | PDA | false | false | PASS |
+
+All 5 addresses resolved cleanly. No null flood results for known flood addresses.
+West End and New Farm correctly flagged as flood=true (both near Brisbane River).
+
+### Task 4 — api_usage telemetry
+
+- Applied migration: `partial` (boolean) and `overlays_returned` (text[]) columns added to api_usage
+- Telemetry insert wired in `app/api/lookup/route.ts` (fire-and-forget, try/catch)
+
+### Task 5 — Deploy
+
+- Deployed to Vercel production: dpl_ADqm97LvmhYp79jgFJdQyd7vmVh8
+- Post-deploy test lookups: New Farm (zone=LMR, flood=true) ✅ Red Hill (zone=MU, flood=false) ✅
+- api_usage verification: 2 rows confirmed in Supabase after deploy
+  - Both rows show partial=false, overlays_returned=["flood","character","schools","bushfire","heritage","noise"]
+  - Telemetry working as expected
+
+**Sprint 18 STATUS: COMPLETE**
+
+---

@@ -120,6 +120,25 @@ export async function GET(request: NextRequest) {
   logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
 
   if (dbError || !rules) {
+    const partialOverlaysReturned = [
+      floodData ? 'flood' : null,
+      characterData ? 'character' : null,
+      schoolsData ? 'schools' : null,
+      bushfireData ? 'bushfire' : null,
+      heritageData ? 'heritage' : null,
+      noiseData ? 'noise' : null,
+    ].filter(Boolean) as string[]
+
+    recordUsage({
+      keyId: keyData?.id ?? null,
+      addressInput,
+      council,
+      zoneCode,
+      partial: true,
+      overlaysReturned: partialOverlaysReturned,
+      responseMs: Date.now() - startMs,
+    })
+
     return Response.json(
       {
         success: true,
@@ -159,6 +178,25 @@ export async function GET(request: NextRequest) {
   }
 
   const responseMs = Date.now() - startMs
+
+  const fullOverlaysReturned = [
+    floodData ? 'flood' : null,
+    characterData ? 'character' : null,
+    schoolsData ? 'schools' : null,
+    bushfireData ? 'bushfire' : null,
+    heritageData ? 'heritage' : null,
+    noiseData ? 'noise' : null,
+  ].filter(Boolean) as string[]
+
+  recordUsage({
+    keyId: keyData?.id ?? null,
+    addressInput,
+    council,
+    zoneCode,
+    partial: false,
+    overlaysReturned: fullOverlaysReturned,
+    responseMs,
+  })
 
   return Response.json(
     {
@@ -250,4 +288,33 @@ function logRequest(opts: {
       origin: opts.request.headers.get('origin'),
     })
     .then(() => {})
+}
+
+// Fire-and-forget api_usage telemetry — must not throw or block response
+function recordUsage(opts: {
+  keyId: string | null
+  addressInput: string
+  council: string | null
+  zoneCode: string | null
+  partial: boolean
+  overlaysReturned: string[]
+  responseMs: number
+}) {
+  try {
+    const db = createServiceClient()
+    void db
+      .from('api_usage')
+      .insert({
+        key_id: opts.keyId,
+        address: opts.addressInput,
+        council: opts.council,
+        zone_code: opts.zoneCode,
+        partial: opts.partial,
+        overlays_returned: opts.overlaysReturned,
+        response_ms: opts.responseMs,
+      })
+      .then(() => {})
+  } catch {
+    // Telemetry failure must never break the main response
+  }
 }
