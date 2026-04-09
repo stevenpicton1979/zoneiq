@@ -146,8 +146,13 @@ Zones: LMR, SP, MU, CF, IN, SR (6 codes — unblocks 47% of Brisbane lookup fail
 **Task 5 — Deploy and smoke test ⚠️ PENDING**
 Blocked by: Google API key + Supabase outage. Tasks 1 and 2 code is deployable now.
 
-**Blockers for Steve:**
-1. Provide `GOOGLE_GEOCODING_API_KEY` for Vercel env
-2. When Supabase recovers: `node scripts/run-seed-with-env.js`
+**Google API key:** Provided by Steve and added to Vercel production + development env. ✅
+**Deployment:** Succeeded after adding `.vercelignore` to exclude `data/` (1.1 GB bushfire GeoJSON was blowing the 1 GB Vercel limit). ✅
+**Smoke test:** 3/3 addresses return OUTSIDE_COVERAGE — Supabase zone lookup returning null (host still unreachable). Google geocoder IS working (geocoding completes; failure at zone spatial query stage).
+
+**Remaining blocker:** Supabase 522 — host unreachable since ~03:17 UTC 2026-04-09.
+When Supabase recovers:
+1. Run `node scripts/run-seed-with-env.js` from `C:/dev/zoneiq` to seed LMR/SP/MU/CF/IN/SR zones
+2. Re-run smoke test: `node -e "..."` or hit zoneiq-sigma.vercel.app manually
 
 ---
