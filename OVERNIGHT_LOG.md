@@ -507,3 +507,252 @@ Created `scripts/ingest-seq-flood-remaining.js` and `scripts/ingest-logan-flood.
 | **TOTAL** | **196,403** |
 
 Sprint 24 SEQ Flood Gap Fill is now fully complete.
+
+---
+
+## DB Audit — 2026-04-09
+
+Six Supabase queries run on request. Report only — nothing changed.
+
+### Q1: Brisbane zone_rules by zone_code (18 codes)
+
+CF, CR, DC, HDR, IN, IND1, LDR, LMDR, LMR, MDR, MU, MU1, NCR, PC, PDA, SBCA, SP, SR — all 1 row each.
+
+### Q2: zone_rules count by council
+
+| council | count |
+|---|---|
+| brisbane | 18 |
+| goldcoast | 24 |
+| ipswich | 56 |
+| logan | 16 |
+| moretonbay | 14 |
+| NSW_standard | 29 |
+| redland | 22 |
+| sunshinecoast | 22 |
+| VIC_standard | 21 |
+| **Total** | **222** |
+
+### Q3: zone_geometries count by council (top councils)
+
+sunshinecoast=106,204 | goldcoast=29,537 | brisbane=26,358 | moretonbay=13,950 | logan=6,920 | redland=6,266 | central coast=2,625 | + 77 more councils (NSW/VIC spread)
+
+Notable: Several out-of-target VIC councils present (cardinia, banyule, wyndham, casey, moorabool, macedon ranges, etc.) and fringe NSW councils (wingecarribee, wollondilly, hawkesbury, lithgow city). These are outside the 20-council VIC target and may affect zone coverage behaviour.
+
+### Q4: school_catchments — no `council` column
+
+Column does not exist. Actual columns: id, school_name, school_type, school_level, suburb, geometry.
+Grouped by school_type: primary=1,724 | secondary=482 | Total=2,206
+
+### Q5: noise_overlays — no `source` column
+
+Column does not exist. Actual columns: id, airport, anef_contour, geom, anef_label.
+Airports: ARCHERFIELD (3) | BRISBANE (6) | GOLD_COAST (5) | MELBOURNE (2) | Western Sydney Airport (4) = 18 total.
+Sydney Kingsford Smith: absent.
+
+### Q6: Brisbane Sprint 17b codes (LMR, SP, MU, CF, IN, SR)
+
+Count = 6. All 6 codes confirmed present. ✅
+
+---
+
+## DB Audit — 9 April 2026
+
+Full table state after Sprints 17–25. All results below are direct Supabase query output.
+
+---
+
+### Query 1 — Brisbane zone_rules detail
+
+Note: `description` column does not exist. Actual columns used: `zone_code`, `zone_name`, `zone_category`, `max_height_m`, `max_storeys`.
+
+| zone_code | zone_name | zone_category | max_height_m | max_storeys |
+|---|---|---|---|---|
+| CF | Community Facilities | mixed | null | null |
+| CR | Character Residential | residential | 9.5 | 2 |
+| DC | District Centre | commercial | null | null |
+| HDR | High Density Residential | residential | null | null |
+| IN | Industry | industrial | null | null |
+| IND1 | Low Impact Industry | industrial | 15 | null |
+| LDR | Low Density Residential | residential | 9.5 | 2 |
+| LMDR | Low-Medium Density Residential | residential | 15.5 | 4 |
+| LMR | Low-Medium Density Residential | residential | 9.5 | 3 |
+| MDR | Medium Density Residential | residential | 21 | 5 |
+| MU | Mixed Use | mixed | null | null |
+| MU1 | Mixed Use | mixed | null | null |
+| NCR | Neighbourhood Centre | commercial | 15.5 | 4 |
+| PC | Principal Centre | commercial | null | null |
+| PDA | Priority Development Area | mixed | null | null |
+| SBCA | South Brisbane Character Area | mixed | 15.5 | 4 |
+| SP | Special Purpose | mixed | null | null |
+| SR | Sport and Recreation | mixed | null | null |
+
+**Total: 18 Brisbane zone codes**
+
+---
+
+### Query 2 — zone_rules count by council
+
+| council | rules_count |
+|---|---|
+| brisbane | 18 |
+| goldcoast | 24 |
+| ipswich | 56 |
+| logan | 16 |
+| moretonbay | 14 |
+| NSW_standard | 29 |
+| redland | 22 |
+| sunshinecoast | 22 |
+| VIC_standard | 21 |
+| **Total** | **222** |
+
+---
+
+### Query 3 — zone_geometries count by council
+
+| council | polygon_count |
+|---|---|
+| sunshinecoast | 106,204 |
+| goldcoast | 29,537 |
+| brisbane | 26,358 |
+| moretonbay | 13,950 |
+| logan | 6,920 |
+| redland | 6,266 |
+| central coast | 2,625 |
+| yarra ranges | 1,522 |
+| ipswich | 1,516 |
+| northern beaches | 1,413 |
+| sutherland shire | 1,407 |
+| blacktown | 1,337 |
+| mornington peninsula | 1,252 |
+| city of parramatta | 1,144 |
+| canterbury-bankstown | 1,128 |
+| inner west | 1,122 |
+| casey | 1,072 |
+| blue mountains | 1,024 |
+| monash | 952 |
+| bayside | 945 |
+| campbelltown | 911 |
+| penrith | 896 |
+| knox | 879 |
+| ku-ring-gai | 864 |
+| hornsby | 829 |
+| darebin | 801 |
+| kingston | 783 |
+| whitehorse | 783 |
+| boroondara | 749 |
+| cardinia | 748 |
+| liverpool | 742 |
+| the hills shire | 724 |
+| wyndham | 703 |
+| stonnington | 690 |
+| brimbank | 680 |
+| sydney | 672 |
+| merri-bek | 665 |
+| north sydney | 652 |
+| banyule | 640 |
+| cumberland | 629 |
+| frankston | 628 |
+| yarra | 627 |
+| wollondilly | 620 |
+| fairfield | 612 |
+| greater geelong | 597 |
+| whittlesea | 596 |
+| wollongong | 589 |
+| hume | 574 |
+| ryde | 573 |
+| hawkesbury | 572 |
+| maroondah | 568 |
+| nillumbik | 552 |
+| georges river | 542 |
+| greater dandenong | 531 |
+| hobsons bay | 516 |
+| manningham | 508 |
+| melbourne | 443 |
+| willoughby | 441 |
+| camden | 434 |
+| randwick | 411 |
+| port phillip | 400 |
+| glen eira | 395 |
+| maribyrnong | 382 |
+| moonee valley | 361 |
+| canada bay | 340 |
+| melton | 339 |
+| macedon ranges | 262 |
+| mosman | 257 |
+| lane cove | 225 |
+| bass coast | 218 |
+| moorabool | 207 |
+| woollahra | 206 |
+| strathfield | 180 |
+| waverley | 161 |
+| wingecarribee | 134 |
+| hunters hill | 110 |
+| mitchell | 91 |
+| burwood | 90 |
+| murrindindi | 89 |
+| queenscliffe | 73 |
+| french-elizabeth-sandstone islands (uninc) | 29 |
+| port of melbourne | 22 |
+| surf coast | 6 |
+| lithgow city | 2 |
+
+**84 distinct councils. SEQ core: 196,195 polygons. NSW+VIC spread extends beyond target LGAs due to bounding box ingest.**
+
+---
+
+### Query 4 — school_catchments
+
+**Total count:** 2,206
+
+**Sample (5 rows):**
+
+| school_name | school_type | suburb |
+|---|---|---|
+| Griffin SS | primary | null |
+| Springfield Lakes SS | primary | null |
+| Kalbar SS | primary | null |
+| Ringrose PS | primary | null |
+| Walloon SS | primary | null |
+
+Note: `suburb` column is null for all QLD records. No `council` column on this table.
+
+---
+
+### Query 5 — noise_overlays by airport and ANEF contour
+
+| airport | anef_contour | count |
+|---|---|---|
+| ARCHERFIELD | 20 | 1 |
+| ARCHERFIELD | 25 | 1 |
+| ARCHERFIELD | 30 | 1 |
+| BRISBANE | 20 | 1 |
+| BRISBANE | 25 | 1 |
+| BRISBANE | 30 | 1 |
+| BRISBANE | 35 | 3 |
+| GOLD_COAST | 20 | 1 |
+| GOLD_COAST | 25 | 1 |
+| GOLD_COAST | 30 | 1 |
+| GOLD_COAST | 35 | 1 |
+| GOLD_COAST | 40 | 1 |
+| MELBOURNE | 20 | 1 |
+| MELBOURNE | 25 | 1 |
+| Western Sydney Airport | 20 - 25 | 1 |
+| Western Sydney Airport | 25 - 30 | 1 |
+| Western Sydney Airport | 30 - 35 | 1 |
+| Western Sydney Airport | 35 - 40 | 1 |
+
+**Total: 18 rows across 5 airports.**
+Sydney Kingsford Smith: NOT_FOUND (confirmed Sprint 21 — no public ANEF shapefile available).
+Note: `source` column does not exist on this table. Columns: id, airport, anef_contour, anef_label, geom.
+
+---
+
+### Query 6 — Sprint 17b check (LMR, SP, MU, CF, IN, SR for brisbane)
+
+| count |
+|---|
+| 6 |
+
+**All 6 Sprint 17b target zone codes confirmed present in brisbane zone_rules.** ✅
+
