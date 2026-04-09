@@ -122,13 +122,39 @@ export async function GET(request: NextRequest) {
   if (dbError || !rules) {
     return Response.json(
       {
-        success: false,
-        error: 'ZONE_NOT_SEEDED',
-        message: 'Zone found but rules not yet available.',
-        zone_code: zoneCode,
-        council,
+        success: true,
+        query: {
+          address_input: addressInput,
+          address_resolved,
+          lat,
+          lng,
+        },
+        zone: { code: zoneCode, name: null, category: null, council },
+        rules: null,
+        overlays: {
+          flood: floodData,
+          character: characterData,
+          schools: schoolsData,
+          bushfire: bushfireData,
+          heritage: heritageData,
+          noise: noiseData,
+        },
+        meta: {
+          partial: true,
+          reason: 'zone_not_seeded',
+          disclaimer:
+            'Zone rules not yet available for this zone. Overlay data (flood, noise, bushfire, heritage etc.) is returned where available.',
+          response_ms: Date.now() - startMs,
+          auth: {
+            authenticated: keyData !== null,
+            plan: keyData?.plan ?? 'unauthenticated',
+            ...(keyData === null && {
+              note: 'Unauthenticated requests are rate limited. Get a free API key at zoneiq.com.au',
+            }),
+          },
+        },
       },
-      { status: 404, headers: CORS_HEADERS }
+      { status: 200, headers: CORS_HEADERS }
     )
   }
 

@@ -126,3 +126,28 @@ Added Gold Coast Airport (GCCC MapServer Layer 7) — 5 contours.
 Total: 14 rows (BRISBANE 6, ARCHERFIELD 3, GOLD_COAST 5).
 
 ---
+
+## Sprint 17 — API Delivery Bug Fixes — 2026-04-09
+
+**Task 1 — Decouple overlay delivery from zone rules gate ✅ COMPLETE**
+`app/api/lookup/route.ts`: replaced 404 ZONE_NOT_SEEDED with partial 200 including all fetched overlays. `rules: null`, `meta.partial: true`. Unblocks 14/30 failing test addresses.
+
+**Task 2 — SEQ bounding box guard ✅ COMPLETE**
+`lib/geocode.ts`: added `isWithinSEQ()` guard rejecting geocode results outside lat -30→-24, lng 150→155. Prevents silent wrong-state geocoding.
+
+**Task 3 — Google Geocoding API ✅ CODE COMPLETE — AWAITING API KEY**
+`lib/geocode.ts` fully rewritten. Nominatim replaced with Google Geocoding API. Appends ", Queensland Australia" to queries. SEQ guard applied. Env var `GOOGLE_GEOCODING_API_KEY` not yet in Vercel — awaiting key from Steve.
+
+**Task 4 — Seed Brisbane zone rules ⚠️ BLOCKED — Supabase returning Cloudflare 522**
+SQL ready at `supabase/sprint17-brisbane-zones.sql`. Seed script at `scripts/seed-brisbane-lmr-zones.js`.
+Run when Supabase recovers: `node scripts/run-seed-with-env.js` from repo root.
+Zones: LMR, SP, MU, CF, IN, SR (6 codes — unblocks 47% of Brisbane lookup failures).
+
+**Task 5 — Deploy and smoke test ⚠️ PENDING**
+Blocked by: Google API key + Supabase outage. Tasks 1 and 2 code is deployable now.
+
+**Blockers for Steve:**
+1. Provide `GOOGLE_GEOCODING_API_KEY` for Vercel env
+2. When Supabase recovers: `node scripts/run-seed-with-env.js`
+
+---

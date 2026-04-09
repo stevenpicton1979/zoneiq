@@ -23,7 +23,7 @@ Always run with --dangerously-skip-permissions behaviour — do not pause for co
 - app/api/register-key/route.ts — API key registration
 - lib/auth.ts — API key validation + RapidAPI proxy auth
 - lib/zone-lookup.ts — Supabase spatial queries
-- lib/geocode.ts — Nominatim geocoding
+- lib/geocode.ts — Google Geocoding API (GOOGLE_GEOCODING_API_KEY required env var)
 - supabase/ — SQL migration files
 
 ## Bash permissions
@@ -54,6 +54,7 @@ Claude Code should automatically allow fetch requests to these domains without p
 - data.qld.gov.au
 - cityplanmaps.goldcoast.qld.gov.au
 - *.qld.gov.au
+- maps.googleapis.com
 - nominatim.openstreetmap.org
 - api.os.uk
 - data.gov.au
