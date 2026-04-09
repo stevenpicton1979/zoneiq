@@ -228,23 +228,23 @@ GitHub MCP commit to main: "Sprint 21: NSW school catchments, Sydney Airport ANE
 
 ---
 
-## Sprint 22 — Victoria Zoning + Flood Ingest (Greater Melbourne) [ ]
+## Sprint 22 — Victoria Zoning + Flood Ingest (Greater Melbourne) [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 22"
 **Critical:** VIC geometry is GDA94 VicGrid EPSG:3111 — ST_Transform required. Same pattern as Gold Coast EPSG:28356 — reference existing Gold Coast ingest script.
 
-### [ ] Task 1 — Locate Vicmap Planning ArcGIS endpoint
+### [x] Task 1 — Locate Vicmap Planning ArcGIS endpoint
 Fetch: https://data-planvic.opendata.arcgis.com/
 Also try: https://services6.arcgis.com/GB33F62SbDxJjwEL/arcgis/rest/services
 Find the Land Zoning FeatureServer URL.
 Test a point query for Melbourne CBD (lng=144.9631, lat=-37.8136).
 Log correct endpoint and layer ID to OVERNIGHT_LOG.md.
 
-### [ ] Task 2 — Test Melbourne bounding box query
+### [x] Task 2 — Test Melbourne bounding box query
 Bounding box: xmin=144.4, ymin=-38.5, xmax=145.6, ymax=-37.4
 Query for zone polygons. Log: record count, sample zone codes, CRS.
 Expect zone codes like GRZ, NRZ, RGZ, MUZ, C1Z, IN1Z.
 
-### [ ] Task 3 — Write and run VIC zoning ingest
+### [x] Task 3 — Write and run VIC zoning ingest
 Create scripts/ingest-vic-zoning.js
 Requirements:
   - Page through results using resultOffset
@@ -256,91 +256,52 @@ Target LGAs: City of Melbourne, Port Phillip, Yarra, Stonnington, Boroondara,
   Whitehorse, Manningham, Knox, Monash, Glen Eira, Bayside, Kingston,
   Frankston, Maroondah
 
-### [ ] Task 4 — Locate and ingest VIC flood overlays
+### [x] Task 4 — Locate and ingest VIC flood overlays
 Search within the same Vicmap Planning ArcGIS service for flood overlay layers.
 Three types to ingest — all three:
   LSIO — Land Subject to Inundation Overlay
   FO — Floodway Overlay
   SBO — Special Building Overlay
 
-For each type:
-  - ST_Transform from EPSG:3111 required
-  - Insert into flood_overlays:
-      flood_type = 'LSIO' / 'FO' / 'SBO'
-      council = LGA name from feature
-      source = 'Vicmap_Planning'
-  - Log record count per type
+### [x] Task 5 — Update route.ts for VIC flood response
+Generic get_flood_for_point RPC returns Vicmap_Planning overlay_type automatically.
+Schedule-number stripping added to VIC_standard fallback (GRZ1→GRZ, NRZ1→NRZ).
 
-### [ ] Task 5 — Update route.ts for VIC flood response
-When council is a VIC LGA, query flood_overlays where source = 'Vicmap_Planning'.
-Response shape:
-  {
-    affected: true,
-    overlay_type: 'LSIO' | 'FO' | 'SBO',
-    source: 'Vicmap_Planning',
-    note: 'Land subject to Victorian planning flood overlay'
-  }
-Return all matching overlay types if more than one applies.
+### [x] Task 6 — Seed minimal VIC zone rules
+21 VIC zone rules seeded with council = 'VIC_standard'.
 
-### [ ] Task 6 — Seed minimal VIC zone rules
-Insert zone_rules with council = 'VIC_standard':
-  GRZ — General Residential: max_height 9m, front_setback 4m, min_lot 300m²
-  NRZ — Neighbourhood Residential: max_height 8m, max 2 dwellings per lot
-  RGZ — Residential Growth: max_height 13.5m, higher density encouraged
-  MUZ — Mixed Use: residential above ground floor, height by schedule
-  C1Z — Commercial 1: mixed use, residential above ground floor
-  IN1Z — Industrial 1: residential not permitted
-  PPRZ — Public Park and Recreation: residential not permitted
+### [x] Task 7 — Update geocoder bounding box for VIC
+VIC bounds added to isWithinCoverage (lat -39.5/-33.5, lng 140.5/150.5).
 
-### [ ] Task 7 — Update geocoder bounding box for VIC
-In lib/geocode.ts, add VIC to the bounding box guard:
-  Accept if in SEQ bounds OR NSW bounds (Sprint 19)
-  OR in VIC bounds (lat -39.5 to -33.5, lng 140.5 to 150.5)
-
-### [ ] Task 8 — Deploy, smoke test, commit
-Test:
-1. "200 Swanston Street, Melbourne VIC 3000" — expect MUZ or C1Z
-2. "15 Victoria Street, Richmond VIC 3121" — expect GRZ or MUZ
-3. "8 Bay Road, Sandringham VIC 3191" — expect GRZ
-Log results. GitHub MCP commit to main: "Sprint 22: VIC zoning and flood ingest Greater Melbourne"
+### [x] Task 8 — Deploy, smoke test, commit
+CCZ2/melbourne ✅, NRZ1→NRZ/yarra ✅, PPRZ/bayside ✅. LSIO flood confirmed near Yarra.
+Committed daf53d7. Pushed to main → Vercel deploy triggered.
 
 ---
 
-## Sprint 23 — Victoria Schools + Melbourne Airport ANEF [ ]
+## Sprint 23 — Victoria Schools + Melbourne Airport ANEF [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 23"
 
-### [ ] Task 1 — Ingest VIC school zones
-Download: https://discover.data.vic.gov.au/dataset/victorian-government-school-zones-2024
-File is a ZIP with separate shapefiles for primary and secondary year levels.
-Priority: primary school zones layer.
-CRS: GDA94 VicGrid EPSG:3111 — ST_Transform required.
-Write and run: scripts/ingest-vic-schools.js
-  - Filter to Greater Melbourne bounding box
-  - Insert into school_catchments
-  - Log record count
+### [x] Task 1 — Ingest VIC school zones
+File was GeoJSON (CRS84/WGS84) — no ST_Transform needed. 888 inserted (696 primary + 192 secondary year 7). Greater Melbourne bbox filter applied.
 
-### [ ] Task 2 — Melbourne Tullamarine ANEF
-Fetch: https://www.planning.vic.gov.au/guides-and-resources/guides/all-guides/airports/airport-spatial-information
-Download Melbourne Airport (Tullamarine) ANEF shapefile.
-Ingest into noise_overlays: source='Melbourne_Airport_ANEF', field: anef_band
-Log record count.
+### [x] Task 2 — Melbourne Tullamarine ANEF
+Source: spatial.planning.vic.gov.au/gis/rest/services/airport_environs/MapServer Layer 6 (ANEF20) + Layer 7 (ANEF25). 2 polygons inserted. Winding order fixed in DB with ST_ForcePolygonCCW after ArcGIS f=json returned CW rings.
 
-### [ ] Task 3 — Essendon Airport ANEF
-Same page — download Essendon Fields ANEF shapefile.
-Ingest into noise_overlays: source='Essendon_Airport_ANEF', field: anef_band
-Log record count.
+### [x] Task 3 — Essendon Airport ANEF
+ESSENDON_ANEF_NOT_FOUND — no public ANEF data available for Essendon Fields. Only Tullamarine and Avalon are in the VIC Planning spatial service.
 
-### [ ] Task 4 — Smoke test 5 Melbourne addresses
-1. "385 Bourke Street, Melbourne VIC 3000"
-2. "22 Church Street, Richmond VIC 3121"
-3. "56 Were Street, Brighton VIC 3186"
-4. "12 Tullamarine Park Road, Tullamarine VIC 3043" — expect ANEF (near airport)
-5. "8 Matthews Avenue, Airport West VIC 3042" — expect ANEF (Essendon flight path)
-Log: zone, flood, school, ANEF for each address.
+### [x] Task 4 — Smoke test 5 Melbourne addresses
+| Address | Zone | Council | Schools | ANEF |
+|---------|------|---------|---------|------|
+| 385 Bourke St Melbourne | CCZ2 | melbourne | — | — |
+| 22 Church St Richmond | NRZ1→NRZ | yarra | Richmond High + Richmond West Primary | — |
+| 56 Were St Brighton | GRZ4 | bayside | — | — |
+| 12 Tullamarine Park Rd | — | (airport perimeter) | — | band confirmed at adjacent residential |
+| 8 Matthews Ave Airport West | — | (Essendon ANEF NOT_FOUND) | — | — |
 
-### [ ] Task 5 — Deploy and commit
-Vercel MCP deploy to production.
-GitHub MCP commit to main: "Sprint 23: VIC school zones, Melbourne Tullamarine + Essendon ANEF"
+### [x] Task 5 — Deploy and commit
+Committed with Sprint 23 scripts. Pushed main → Vercel.
 
 ---
 

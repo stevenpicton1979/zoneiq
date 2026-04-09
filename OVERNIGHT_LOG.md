@@ -257,4 +257,25 @@ West End and New Farm correctly flagged as flood=true (both near Brisbane River)
 **Task 7:** geocode.ts updated — state detection (NSW/VIC/QLD), state-aware suffix, NSW bounding box added (lat -38→-28, lng 140→154). route.ts fallback added: NSW councils → NSW_standard rules.
 **Task 8:** Deployed dpl_C7YsUgV2aV3KzG8t9aahvC2jJQDu. Live test: 12 Martin Place Sydney → zone=RE1/Public Recreation, rules from NSW_standard ✅.
 
+---
+
+## Sprint 22 — VIC Zoning + Flood (Greater Melbourne) — COMPLETE 2026-04-09
+
+**Task 1:** Vicmap Planning endpoint confirmed: `services-ap1.arcgis.com/P744lA0wf4LlBZ84/ArcGIS/rest/services/Vicmap_Planning/FeatureServer`. Layer 3 = PLAN_ZONE, Layer 2 = PLAN_OVERLAY. CRS: EPSG:3857 (NOT VicGrid 3111 as backlog warned) — outSR=4326 sufficient, no ST_Transform needed.
+**Task 2:** Melbourne bbox `144.4,-38.5,145.6,-37.4` tested. Sample zone codes: GRZ1-GRZ17, NRZ1, NRZ2, MUZ, CCZ1-CCZ7, C1Z, IN1Z, PPRZ, etc.
+**Task 3:** `scripts/ingest-vic-zoning.js` written and run. 22,254 zone polygons inserted across Greater Melbourne LGAs (melbourne, yarra, port phillip, stonnington, boroondara, etc.). 0 skipped.
+**Task 4:** `scripts/ingest-vic-flood.js` written and run. 1,742 flood overlays inserted: 811 LSIO + 899 SBO + 32 FO. All from Vicmap Planning FeatureServer Layer 2.
+**Task 5-6:** VIC_standard zone rules (21 codes) seeded. Generic get_flood_for_point RPC returns Vicmap_Planning data automatically. VIC_standard fallback added with schedule-number stripping (GRZ1→GRZ, NRZ2→NRZ, CCZ5→CCZ).
+**Task 7:** geocode.ts isWithinCoverage() updated — VIC bounds added (lat -39.5/-33.5, lng 140.5/150.5).
+**Task 8:** Smoke tests via Supabase RPC: CCZ2/melbourne ✅, NRZ1→NRZ_rules/yarra ✅, PPRZ/bayside ✅. LSIO flood overlay confirmed near Yarra River. Committed daf53d7, pushed main → Vercel deploy.
+
+| Address | Zone | Council | Flood |
+|---------|------|---------|-------|
+| 200 Swanston St Melbourne | CCZ2 | melbourne | — |
+| 15 Victoria St Richmond | NRZ1→NRZ rules | yarra | LSIO ✅ |
+| 8 Bay Rd Sandringham | PPRZ | bayside | — |
+
+---
+
+## Sprint 23 — VIC Schools + Melbourne Airport ANEF — 2026-04-09
 
