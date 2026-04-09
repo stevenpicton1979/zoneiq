@@ -1,0 +1,11 @@
+# Data files — used only for one-time import scripts, never needed at runtime
+data/
+
+# Test outputs
+flood-anef-results.json
+
+# Scripts — not needed in serverless deployment
+scripts/
+
+# Supabase migration files — not needed at runtime
+supabase/
