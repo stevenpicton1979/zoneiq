@@ -72,7 +72,7 @@ If buyerside had changes, commit to buyerside main: "Sprint 18: fix ZoneIQ respo
 
 ---
 
-## Sprint 19 — NSW Zoning Ingest (Greater Sydney) [ ]
+## Sprint 19 — NSW Zoning Ingest (Greater Sydney) [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 19"
 
 ### [ ] Task 1 — Verify GiST index on zone_geometries

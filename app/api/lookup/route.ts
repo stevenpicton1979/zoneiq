@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         success: false,
         error: 'OUTSIDE_COVERAGE',
         message:
-          'Address is outside coverage area. Coverage is currently Brisbane City Council, Gold Coast City Council, Moreton Bay Regional Council, and Sunshine Coast Regional Council.',
+          'Address is outside coverage area. Coverage: SEQ (Brisbane, Gold Coast, Moreton Bay, Sunshine Coast, Ipswich, Logan, Redland) and Greater Sydney (NSW).',
       },
       { status: 404, headers: CORS_HEADERS }
     )
@@ -108,14 +108,35 @@ export async function GET(request: NextRequest) {
 
   const { zone_code: zoneCode, council } = zoneResult
 
-  // Zone rules from DB
+  // Zone rules from DB — try exact council match, then state-standard fallback
   const db = createServiceClient()
-  const { data: rules, error: dbError } = await db
+  let { data: rules, error: dbError } = await db
     .from('zone_rules')
     .select('*')
     .eq('zone_code', zoneCode)
     .eq('council', council)
     .single()
+
+  // Fallback to NSW_standard for NSW councils, VIC_standard for VIC councils
+  if ((dbError || !rules) && council) {
+    const nswCouncils = ['sydney','parramatta','blacktown','liverpool','penrith','sutherland shire','inner west','canterbury-bankstown','northern beaches','ku-ring-gai','georges river','randwick','waverley','woollahra','lane cove','willoughby','ryde','strathfield','bayside','hornsby','hunters hill','mosman','north sydney','burwood','canada bay','campbelltown','camden','fairfield','hawkesbury','cumberland','the hills shire','blue mountains','wollongong','central coast','city of parramatta']
+    const vicCouncils = ['city of melbourne','port phillip','yarra','stonnington','boroondara','merri-bek','darebin','moonee valley','maribyrnong','hobsons bay','brimbank','whitehorse','manningham','knox','monash','glen eira','bayside (vic)','kingston','frankston','maroondah']
+    let fallbackCouncil: string | null = null
+    if (nswCouncils.includes(council.toLowerCase())) fallbackCouncil = 'NSW_standard'
+    else if (vicCouncils.some(c => council.toLowerCase().includes(c.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
+    if (fallbackCouncil) {
+      const fallback = await db
+        .from('zone_rules')
+        .select('*')
+        .eq('zone_code', zoneCode)
+        .eq('council', fallbackCouncil)
+        .single()
+      if (!fallback.error && fallback.data) {
+        rules = fallback.data
+        dbError = null
+      }
+    }
+  }
 
   logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
 

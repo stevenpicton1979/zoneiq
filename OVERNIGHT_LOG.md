@@ -217,3 +217,22 @@ West End and New Farm correctly flagged as flood=true (both near Brisbane River)
 **Sprint 18 STATUS: COMPLETE**
 
 ---
+
+## Overnight Session — 2026-04-09 (Sprints 19–25 + 16)
+
+**Start:** Executing all remaining [ ] sprints in order: 19, 20, 21, 22, 23, 24, 25, 16.
+
+---
+
+## Sprint 19 — NSW Zoning Ingest (Greater Sydney) — COMPLETE 2026-04-09
+
+**Task 1:** GiST index confirmed on zone_geometries (zone_geometries_geometry_idx).
+**Task 2:** NSW layer discovered — Planning_Portal_Principal_Planning MapServer Layer 19 (Land Zoning Map). CRS: EPSG:4283 (GDA94), max 2000/request. 27,137 features in Greater Sydney bbox.
+**Task 3:** `scripts/ingest-nsw-zoning.js` written — supabase RPC batch insert (50/call), outSR=4326 reprojection by ArcGIS.
+**Task 4:** 25,242 polygons inserted across 37 LGAs including all target Sydney councils.
+**Task 5:** Spatial queries verified — Sydney CBD→SP5/sydney ✅, Bondi→RE1/waverley ✅, Parramatta→MU1/city of parramatta ✅.
+**Task 6:** 28 NSW zone rules seeded (council=NSW_standard) covering R1–R5, MU1, C1–C4, SP1–SP5, E1–E5, RE1–RE2, RU1/RU2/RU5, W1/W2, B4, IN1.
+**Task 7:** geocode.ts updated — state detection (NSW/VIC/QLD), state-aware suffix, NSW bounding box added (lat -38→-28, lng 140→154). route.ts fallback added: NSW councils → NSW_standard rules.
+**Task 8:** Deployed dpl_C7YsUgV2aV3KzG8t9aahvC2jJQDu. Live test: 12 Martin Place Sydney → zone=RE1/Public Recreation, rules from NSW_standard ✅.
+
+
