@@ -16,10 +16,14 @@ import type { ApiKeyRecord } from '@/lib/auth'
 // GET handlers are dynamic by default in Next.js 16
 export const dynamic = 'force-dynamic'
 
+const API_VERSION = '2.0.0'
+const API_COVERAGE = ['QLD_SEQ', 'NSW_Sydney', 'VIC_Melbourne']
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, X-Api-Key',
+  'X-ZoneIQ-Version': API_VERSION,
 }
 
 export async function OPTIONS() {
@@ -188,6 +192,8 @@ export async function GET(request: NextRequest) {
           noise: noiseData,
         },
         meta: {
+          version: API_VERSION,
+          coverage: API_COVERAGE,
           partial: true,
           reason: 'zone_not_seeded',
           disclaimer:
@@ -272,6 +278,8 @@ export async function GET(request: NextRequest) {
         noise: noiseData,
       },
       meta: {
+        version: API_VERSION,
+        coverage: API_COVERAGE,
         source: council === 'goldcoast' ? 'Gold Coast City Plan 2016'
           : council === 'moretonbay' ? 'Moreton Bay Regional Council Planning Scheme'
           : council === 'sunshinecoast' ? 'Sunshine Coast Planning Scheme 2014'

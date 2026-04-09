@@ -277,5 +277,43 @@ West End and New Farm correctly flagged as flood=true (both near Brisbane River)
 
 ---
 
-## Sprint 23 — VIC Schools + Melbourne Airport ANEF — 2026-04-09
+## Sprint 23 — VIC Schools + Melbourne Airport ANEF — COMPLETE 2026-04-09
+
+**Task 1:** `scripts/ingest-vic-schools.js` written. Source: DataVic dv371 ZIP — GeoJSON format, CRS already WGS84 (no ST_Transform). 888 inserted: 696 primary (prep_to_6) + 192 secondary year 7 (year_7_to_12). Greater Melbourne bbox filter applied (144.4-145.6, -38.5 to -37.4).
+**Task 2:** Melbourne ANEF — `scripts/ingest-vic-anef.js` written. Source: spatial.planning.vic.gov.au/gis/rest/services/airport_environs/MapServer Layers 6 (ANEF20) + 7 (ANEF25). 2 polygons inserted. Winding order issue (ArcGIS f=json returns CW rings): fixed in DB with `ST_ForcePolygonCCW`. Script updated to use f=geojson for future ingests.
+**Task 3:** Essendon Airport ANEF — NOT_FOUND. VIC Planning spatial service only has Tullamarine and Avalon ANEF data.
+**Task 4:** Smoke test via Supabase RPC: Schools confirmed at Richmond (Richmond High School + Richmond West Primary ✅). ANEF confirmed working at -37.648, 144.774 (Keilor — west of airport, under ANEF20 band ✅). GRZ4/bayside for Brighton ✅, CCZ2/melbourne CBD ✅.
+**Task 5:** Committed b64b4d2, pushed main.
+
+---
+
+## Sprint 24 — SEQ Flood Gap Fill (6 Councils) — IN PROGRESS 2026-04-09
+
+**Endpoints found:**
+- Gold Coast: `services.arcgis.com/.../Designated_Flood_Level_for_Residential_Buildings/FeatureServer/0` — 298k polygon features, FLOODLVLDES field
+- Moreton Bay: `services-ap1.arcgis.com/152ojN3Ts9H3cdtl/.../OM_Flood_Hazard_WebMercator_OpenData/FeatureServer/0` — 148k features, OVL_CAT/CAT_DESC
+- Sunshine Coast: `services-ap1.arcgis.com/YQyt7djuXN7rQyg4/.../PlanningScheme_SunshineCoast_Overlays_SCC_OpenData/FeatureServer/46` — 1,561 features, DESCRIPT
+- Ipswich: WFS `data.gov.au/geoserver/.../wfs` — 288 features, CODE/DETAILS
+- Logan: `arcgis.lcc.wspdigital.com/.../Logan_Planning_Scheme.../MapServer/24` — 520 features, OVL_CAT/CAT_DESC
+- Redland: `gis.redland.qld.gov.au/.../city_plan/MapServer/11` — 39,422 features, CLASS field
+
+**Scripts written:** `scripts/ingest-seq-flood.js` (GC/MBRC/SC/Logan/Ipswich), `scripts/ingest-redland-flood.js`
+**Redland:** 23,700 inserted (23,100 Storm Tide 2016-2100 + 252 Drainage Constrained + 300 Flood Regulation + 48 Storm Tide 2016) ✅
+**SEQ (GC+MBRC+SC+Logan+Ipswich):** Running in background.
+
+---
+
+## Sprint 25 — National Geocoder + API v2.0.0 — IN PROGRESS 2026-04-09
+
+**Task 1:** geocode.ts `isWithinCoverage` updated to national bounds (lat -44/-10, lng 112/154). Supabase zone lookup returns null for unsupported areas.
+**Task 2:** State suffix detection confirmed working (Sprint 19).
+**Task 3:** Sydney SP5/sydney ✅, Melbourne CCZ2/melbourne ✅.
+**Task 4:** QFAO fallback not yet in code (Sprint 16 adds it). NSW/VIC guard will be implemented in Sprint 16.
+**Task 5:** Added `version: '2.0.0'`, `coverage: ['QLD_SEQ','NSW_Sydney','VIC_Melbourne']` to all API meta responses. Added `X-ZoneIQ-Version: 2.0.0` header.
+
+**MANUAL ACTIONS REQUIRED (post-deploy):**
+- MANUAL: Update RapidAPI ZoneIQ listing to reflect NSW + VIC coverage
+- MANUAL: Update zoneiq.com.au marketing page to reflect national coverage
+- MANUAL: Review RapidAPI pricing tiers for national coverage
+
 
