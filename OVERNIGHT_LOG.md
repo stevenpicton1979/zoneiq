@@ -756,3 +756,98 @@ Note: `source` column does not exist on this table. Columns: id, airport, anef_c
 
 **All 6 Sprint 17b target zone codes confirmed present in brisbane zone_rules.** ✅
 
+
+---
+
+## Sprint 26 — OpenAPI Spec v2.0 — started 2026-04-09
+
+
+---
+
+## Sprint 26 — OpenAPI Spec v2.0 — 2026-04-09
+
+### Task 1 — Audit current spec
+File: `public/rapidapi-openapi.json`
+- Version: 1.0.0 (stale)
+- Title: "ZoneIQ — SEQ Planning Zone API" (stale)
+- Description: mentions only 4 councils, 175,049 polygons
+- Overlays documented: flood, character, schools only — missing bushfire, heritage, noise
+- Missing: key_rules, uses, meta object, version/coverage fields, partial response shape, error responses, auth schemes
+
+### Task 2 — Live API ground truth
+Two live calls made:
+- Brisbane (West End QLD): zone=SC, partial=true, flood=FHA_R5/brisbane_river, schools=[West End SS, Brisbane SHS]
+- Sydney (Martin Place NSW): zone=RE1/Public Recreation, rules={all nulls}, key_rules confirmed, uses confirmed, meta.source=NSW Standard Instrument LEP
+
+### Task 3 — Spec rewritten
+`public/rapidapi-openapi.json` fully rewritten to v2.0.0:
+- Title: "ZoneIQ — Australia's Planning Zone API"
+- Description: 238,993 polygons, 84 councils, QLD/NSW/VIC
+- All 6 overlays documented (flood, character, schools, bushfire, heritage, noise)
+- flood.overlay_type and flood.flood_category documented
+- key_rules and uses arrays included
+- meta: version, coverage, partial, reason, source, source_url, last_verified, disclaimer, response_ms, auth
+- Two complete examples: full NSW response + partial QLD response
+- All 4 error responses: 400, 401, 404 (ADDRESS_NOT_FOUND + OUTSIDE_COVERAGE)
+- Security: ApiKeyHeader (X-Api-Key) + RapidApiKey (X-RapidAPI-Key) + unauthenticated (empty)
+- X-ZoneIQ-Version response header documented
+
+### Task 4 — /api/openapi route created
+File: `app/api/openapi/route.ts` — serves `public/rapidapi-openapi.json` at GET /api/openapi.
+
+---
+
+## Sprint 27 — Marketing Page Update — 2026-04-09
+
+All copy changes made to `app/page.tsx` and `app/layout.tsx`:
+
+| Element | Before | After |
+|---|---|---|
+| Page title | "ZoneIQ — Brisbane Planning Zone API" | "ZoneIQ — Australia's Planning Zone API" |
+| Meta description | Brisbane only | 84 councils, QLD/NSW/VIC, 9 overlay types |
+| Nav tagline | "SEQ Planning Zone API" | "Australia's Planning Zone API" |
+| H1 | "SEQ's planning zone API" | "Australia's planning zone API" |
+| Subheadline | "any South East Queensland address" | "any Australian address" |
+| Input placeholder | "Enter any Brisbane, Gold Coast..." | "Enter any Australian address…" |
+| Example addresses | 6x QLD only | 2x QLD + 2x NSW + 2x VIC |
+| Overlays card | "Flood risk, character, school catchments" | "Flood, bushfire, heritage, schools, ANEF, character" |
+| Coverage card | "4 SEQ councils. More coming soon." | "84 councils across QLD, NSW and VIC. More states coming soon." |
+| Footer tagline | "SEQ's planning zone API" | "Australia's planning zone API" |
+| Footer coverage | "Brisbane · Gold Coast · Moreton Bay · SC" | "QLD · NSW · VIC — 84 councils" |
+| Footer links | 4x QLD council plans | Brisbane City Plan + Gold Coast + NSW Planning Portal + Vic Planning |
+| councilLabel() | 4 hardcoded QLD councils | Full map including NSW/VIC + generic formatter |
+
+---
+
+## Sprint 28 — KSF + Essendon ANEF Search — 2026-04-09
+
+### Sydney Kingsford Smith ANEF
+
+Searched:
+1. `mapprod3.environment.nsw.gov.au/ePlanning/Planning_Portal_SEPP/MapServer` — Layer 280 "Airport Noise" found but confirmed Western Sydney Aerotropolis SEPP only (EPI_NAME = "SEPP Precincts—Western Parkland City 2021", ANEF_CODE="20 - 25"). Not KSF.
+2. `mapprod3.environment.nsw.gov.au/Planning/MapServer` — 404 Not Found
+3. `mapprod3.environment.nsw.gov.au/ePlanning/Planning_Portal_LEP/MapServer` — 404 Not Found
+4. `data.nsw.gov.au` — searched ANEF + aircraft noise — no datasets found
+5. `Planning_Portal_SEPP` full layer list — no KSF/Sydney Airport layers present
+
+**Result: KSF_ANEF_NOT_FOUND — sources exhausted. No public ANEF data for Sydney Kingsford Smith available via any NSW government open data service. The SEPP Airport Noise layer (ID 280) is for Western Sydney Airport only (already ingested in Sprint 21).**
+
+Manual contact if needed: planning@sydneyairport.com.au or NSW Planning spatial team.
+
+### Essendon Airport ANEF
+
+VIC Airport Environs MapServer (`spatial.planning.vic.gov.au/gis/rest/services/airport_environs/MapServer`) layers:
+- 0: Airports
+- 1: Avalon Future OLS
+- 2: Avalon Future OLS maplabels
+- 3: Avalon ANEF 2031
+- 4: Avalon ANEF 1993
+- 5: Melbourne Airport noise contours
+- 6: Melbourne Airport ANEF20 2013
+- 7: Melbourne Airport ANEF25 2013
+
+**Result: ESSENDON_ANEF_NOT_FOUND — no Essendon data in VIC Airport Environs service.**
+
+**Bonus finding: Avalon Airport has ANEF layers (3+4) not yet ingested. Added to Ideas to spec.**
+
+No new data ingested this sprint — no deploy required.

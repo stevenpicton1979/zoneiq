@@ -18,10 +18,11 @@ Claude Code reads this file at the start of every session and works through task
 - [ ] school_catchments council column — add LGA field to enable filtering by council
 - [ ] RapidAPI listing update — reflect NSW + VIC national coverage (MANUAL — cannot be done by Claude Code)
 - [ ] QFAO endpoint — update QFAO_URL in lib/zone-lookup.ts when QRA publishes queryable FeatureServer
+- [ ] Avalon Airport ANEF — VIC Airport Environs MapServer layers 3 (ANEF 2031) + 4 (ANEF 1993) are queryable. Ingest into noise_overlays: airport='AVALON'
 
 ---
 
-## Sprint 26 — Update OpenAPI Spec to v2.0 [ ]
+## Sprint 26 — Update OpenAPI Spec to v2.0 [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 26"
 
 **Goal:** Update the ZoneIQ OpenAPI spec to accurately reflect the current v2.0 API response
@@ -30,7 +31,7 @@ RapidAPI, external developers). The spec was last updated at Sprint 6 and is sig
 stale — it predates national coverage, the overlays{} response shape change, partial
 responses, and most overlay types.
 
-### [ ] Task 1 — Audit the current spec
+### [x] Task 1 — Audit the current spec
 Find the existing OpenAPI spec file in the repo (likely openapi.yaml, openapi.json,
 or referenced in next.config.js / a /docs route).
 Read it. Log to OVERNIGHT_LOG.md:
@@ -38,12 +39,12 @@ Read it. Log to OVERNIGHT_LOG.md:
   - What response fields it documents
   - What is missing vs the current actual API response
 
-### [ ] Task 2 — Document the current actual response shape
+### [x] Task 2 — Document the current actual response shape
 Make a live API call to zoneiq-sigma.vercel.app with a known Brisbane address and
 a known Sydney address. Log the full JSON response for each to OVERNIGHT_LOG.md.
 This becomes the ground truth for the spec update.
 
-### [ ] Task 3 — Update the OpenAPI spec
+### [x] Task 3 — Update the OpenAPI spec
 Rewrite the spec to accurately reflect v2.0. Must include:
 
   **Request:**
@@ -81,19 +82,19 @@ Rewrite the spec to accurately reflect v2.0. Must include:
   **Headers:**
   - X-ZoneIQ-Version: 2.0.0
 
-### [ ] Task 4 — Verify the spec is served correctly
+### [x] Task 4 — Verify the spec is served correctly
 Confirm the spec is accessible at a public URL (e.g. zoneiq-sigma.vercel.app/api/docs
 or zoneiq-sigma.vercel.app/openapi.json).
 If it is not currently served as a live endpoint, add a simple route that returns the
 spec as JSON at /api/openapi.
 
-### [ ] Task 5 — Deploy and commit
+### [x] Task 5 — Deploy and commit
 Vercel MCP deploy to production.
 GitHub MCP commit to main: "Sprint 26: OpenAPI spec updated to v2.0 — full response shape, all overlays, national coverage"
 
 ---
 
-## Sprint 27 — Marketing Page Update (zoneiq.com.au) [ ]
+## Sprint 27 — Marketing Page Update (zoneiq.com.au) [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 27"
 **Run after:** Sprint 26 (spec should be current before marketing copy is written)
 
@@ -101,32 +102,32 @@ GitHub MCP commit to main: "Sprint 26: OpenAPI spec updated to v2.0 — full res
 Current page says "SEQ's planning zone API" and lists only 4 councils. ZoneIQ now
 covers 84 councils across QLD, NSW and VIC with 9 overlay types.
 
-### [ ] Task 1 — Read the current marketing page source
+### [x] Task 1 — Read the current marketing page source
 Find the landing page component(s) in the repo — likely app/page.tsx or pages/index.tsx.
 Read the current copy and component structure. Log to OVERNIGHT_LOG.md what needs changing.
 
-### [ ] Task 2 — Update headline and subheadline
+### [x] Task 2 — Update headline and subheadline
 Current: "SEQ's planning zone API"
 New: "Australia's planning zone API"
 
 Current subheadline: "Instant zone, rules, and overlay data for any South East Queensland address."
 New: "Instant zone, rules, and overlay data for any Australian address. One API call. Clean JSON. No scraping."
 
-### [ ] Task 3 — Update the Coverage card
+### [x] Task 3 — Update the Coverage card
 Current: "Brisbane City Council, Gold Coast City Council, Moreton Bay Regional Council,
 and Sunshine Coast Regional Council. More councils coming soon."
 
 New: "84 councils across QLD, NSW and VIC. Brisbane, Sydney, Melbourne and surrounds.
 More states coming soon."
 
-### [ ] Task 4 — Update the Overlays card
+### [x] Task 4 — Update the Overlays card
 Current: "Flood risk (river + overland), character heritage overlay, and school catchments
 in a single call."
 
 New: "Flood risk, bushfire hazard, heritage listings, school catchments, aircraft noise
 (ANEF), character overlays — all in a single call."
 
-### [ ] Task 5 — Update demo address examples
+### [x] Task 5 — Update demo address examples
 Current examples are all QLD only.
 Replace with a mix across all three states:
   QLD: "18 Montague Road, West End QLD 4101"
@@ -140,25 +141,25 @@ Also update the demo input placeholder text:
 Current: "Enter any Brisbane, Gold Coast, Moreton Bay or Sunshine Coast address..."
 New: "Enter any Australian address..."
 
-### [ ] Task 6 — Update page title and meta tags
+### [x] Task 6 — Update page title and meta tags
 Page title: "ZoneIQ — Australia's Planning Zone API"
 Meta description: "Instant zone, rules, flood, bushfire, heritage, school and noise overlay
 data for any Australian address. 84 councils. One API call. Clean JSON."
 
-### [ ] Task 7 — Deploy and commit
+### [x] Task 7 — Deploy and commit
 Vercel MCP deploy to production.
 GitHub MCP commit to main: "Sprint 27: marketing page updated for national coverage"
 
 ---
 
-## Sprint 28 — Sydney Kingsford Smith ANEF [ ]
+## Sprint 28 — Sydney Kingsford Smith ANEF [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 28"
 
 **Goal:** Attempt to source and ingest Sydney KSF ANEF contours. KSF is the most
 significant absent airport for NSW coverage — affects Mascot, Botany, Rockdale,
 Marrickville, Sydenham, Alexandria, Tempe, Wolli Creek corridors.
 
-### [ ] Task 1 — Search NSW ePlanning ArcGIS for ANEF layer
+### [x] Task 1 — Search NSW ePlanning ArcGIS for ANEF layer
 The NSW ePlanning MapServer may include ANEF/aircraft noise as a planning overlay layer.
 Fetch the full service directory:
   https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/ePlanning/Planning_Portal_SEPP/MapServer?f=json
@@ -166,17 +167,17 @@ Fetch the full service directory:
 Search layer names for: ANEF, noise, aircraft, airport, Sydney Airport
 Log all layer names and IDs to OVERNIGHT_LOG.md.
 
-### [ ] Task 2 — Search NSW open data portal
+### [x] Task 2 — Search NSW open data portal
 Search https://data.nsw.gov.au for: "ANEF", "Sydney Airport noise", "aircraft noise contour"
 Search https://www.planningportal.nsw.gov.au/opendata/dataset/ for same terms.
 Log any found datasets with their download URLs.
 
-### [ ] Task 3 — Check Sydney Airport Master Plan spatial data
+### [x] Task 3 — Check Sydney Airport Master Plan spatial data
 Fetch: https://www.sydneyairport.com.au/corporate/doing-business-with-us/planning-and-environment/master-plan
 Look for downloadable ANEF shapefile or GeoJSON linked from the Master Plan page.
 Log findings.
 
-### [ ] Task 4 — Ingest if found
+### [x] Task 4 — Ingest if found
 If ANEF contours found in any of the above sources:
   - Download and inspect CRS
   - Ingest into noise_overlays: airport='SYDNEY_KSF', anef_contour=[value]
@@ -187,14 +188,14 @@ If not found after completing Tasks 1–3:
     planning@sydneyairport.com.au or NSW Planning spatial team."
   - Do not create a placeholder entry
 
-### [ ] Task 5 — Also attempt Essendon Airport ANEF
+### [x] Task 5 — Also attempt Essendon Airport ANEF
 While in ANEF territory, retry Essendon which was absent from Sprint 23.
 Fetch: https://www.planning.vic.gov.au/guides-and-resources/guides/all-guides/airports/airport-spatial-information
 Look specifically for Essendon Fields / Essendon Airport ANEF shapefile.
 If found: ingest into noise_overlays: airport='ESSENDON', anef_contour=[value]
 If not found: log "ESSENDON_ANEF_NOT_FOUND"
 
-### [ ] Task 6 — Deploy and commit
+### [x] Task 6 — Deploy and commit
 Vercel MCP deploy to production (only if new data was ingested).
 GitHub MCP commit to main: "Sprint 28: KSF + Essendon ANEF ingest attempt"
 
@@ -235,3 +236,6 @@ GitHub MCP commit to main: "Sprint 28: KSF + Essendon ANEF ingest attempt"
 - Total zone_rules: 222
 - Total school_catchments: 2,206 (1,724 primary + 482 secondary)
 - Total noise_overlays: 18 rows across 5 airports
+- [x] Sprint 26: OpenAPI spec rewritten to v2.0.0 — full response shape, all 6 overlays, key_rules, uses, meta.partial, error responses, examples. /api/openapi route added. public/rapidapi-openapi.json updated.
+- [x] Sprint 27: Marketing page updated — headline "Australia's planning zone API", 84 councils, 6 overlay types, national example addresses (QLD/NSW/VIC), placeholder text, meta title+description, footer. layout.tsx updated.
+- [x] Sprint 28: KSF_ANEF_NOT_FOUND — no public ANEF data in NSW ePlanning services (Planning_Portal_SEPP Layer 280 is Western Sydney Airport only). data.nsw.gov.au: no ANEF datasets. ESSENDON_ANEF_NOT_FOUND — not in VIC Airport Environs MapServer (only Avalon + Melbourne Tullamarine). Note: Avalon Airport ANEF layers exist (layers 3+4) — not yet ingested, consider for future sprint.

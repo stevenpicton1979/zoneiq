@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZoneIQ — Brisbane Planning Zone API",
-  description: "Look up planning zones and development rules for any Brisbane address. Powered by Brisbane City Plan 2014.",
+  title: "ZoneIQ — Australia's Planning Zone API",
+  description: "Instant zone, rules, flood, bushfire, heritage, school and noise overlay data for any Australian address. 84 councils across QLD, NSW and VIC. One API call. Clean JSON.",
 };
 
 export default function RootLayout({

@@ -1,118 +1,302 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "ZoneIQ — SEQ Planning Zone API",
-    "description": "Look up planning zones, development rules, and overlays for any Brisbane, Gold Coast, Moreton Bay, or Sunshine Coast property. Returns zone code, permitted uses, height limits, setbacks, site coverage, flood overlay, character overlay, and school catchments. Powered by 175,049 zone polygons from Brisbane City Plan 2014, Gold Coast City Plan 2016, Moreton Bay Regional Council Planning Scheme, and Sunshine Coast Planning Scheme 2014.",
-    "version": "1.0.0",
+    "title": "ZoneIQ — Australia's Planning Zone API",
+    "description": "Look up planning zones, development rules, and spatial overlays for any Australian address. Returns zone code, permitted uses, height limits, setbacks, flood risk, bushfire hazard, heritage listings, school catchments, and aircraft noise (ANEF) contours — all in a single API call.\n\nCoverage: 238,993 zone polygons across 84 councils in QLD (SEQ), NSW (Greater Sydney), and VIC (Greater Melbourne). Sources include Brisbane City Plan 2014, Gold Coast City Plan 2016, NSW Standard Instrument LEP, and Victorian Planning Provisions.\n\nVersion: 2.0.0",
+    "version": "2.0.0",
     "contact": {
       "email": "hello@zoneiq.com.au"
     }
   },
   "servers": [
-    { "url": "https://zoneiq.com.au" }
+    { "url": "https://zoneiq.com.au" },
+    { "url": "https://zoneiq-sigma.vercel.app" }
   ],
   "paths": {
     "/api/lookup": {
       "get": {
-        "summary": "Look up planning zone for an address",
-        "description": "Geocodes the address and returns the planning zone, development rules, and overlays for the property.",
+        "summary": "Look up planning zone and overlays for an address",
+        "description": "Geocodes the address and returns the planning zone, development rules, and all spatial overlays for the property. Works for addresses in QLD (SEQ), NSW (Greater Sydney), and VIC (Greater Melbourne).\n\nIf zone rules are not yet seeded for the detected zone code, the response returns `success: true` with `rules: null` and `meta.partial: true` — overlay data is still returned.\n\nUnauthenticated requests are rate-limited. Authenticated requests (X-Api-Key header) receive higher limits per plan.",
         "operationId": "lookupZone",
         "parameters": [
           {
             "name": "address",
             "in": "query",
             "required": true,
-            "description": "Full property address including suburb and state. E.g. '42 Smith Street Chermside QLD'",
+            "description": "Full property address including suburb and state. Examples: '18 Montague Road West End QLD 4101', '12 Martin Place Sydney NSW 2000', '22 Church Street Richmond VIC 3121'",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "api_key",
+            "in": "query",
+            "required": false,
+            "description": "API key (alternative to X-Api-Key header)",
             "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful zone lookup",
+            "description": "Successful zone lookup. May be partial (rules: null) if the zone code is not yet seeded.",
+            "headers": {
+              "X-ZoneIQ-Version": {
+                "description": "API version",
+                "schema": { "type": "string", "example": "2.0.0" }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
                     "query": {
                       "type": "object",
+                      "description": "Geocoded address information",
                       "properties": {
-                        "address_input": { "type": "string" },
-                        "address_resolved": { "type": "string" },
-                        "lat": { "type": "number" },
-                        "lng": { "type": "number" }
+                        "address_input": { "type": "string", "example": "18 Montague Road, West End QLD 4101" },
+                        "address_resolved": { "type": "string", "example": "18 Montague Rd, South Brisbane QLD 4101, Australia" },
+                        "lat": { "type": "number", "example": -27.4707241 },
+                        "lng": { "type": "number", "example": 153.0172539 }
                       }
                     },
                     "zone": {
                       "type": "object",
+                      "description": "Planning zone classification for the address",
                       "properties": {
-                        "code": { "type": "string", "example": "LDR" },
-                        "name": { "type": "string", "example": "Low Density Residential" },
-                        "category": { "type": "string", "example": "residential" },
-                        "council": { "type": "string", "example": "brisbane" }
+                        "code": { "type": "string", "example": "LDR", "description": "Zone code from the relevant planning scheme. E.g. LDR, CR, GRZ, R2, MU, IN1Z." },
+                        "name": { "type": "string", "nullable": true, "example": "Low Density Residential" },
+                        "category": { "type": "string", "nullable": true, "example": "residential", "enum": ["residential", "commercial", "industrial", "mixed", "open_space", null] },
+                        "council": { "type": "string", "example": "brisbane", "description": "Council name matching zone_geometries. E.g. brisbane, sydney, melbourne, yarra, penrith." }
                       }
                     },
                     "rules": {
-                      "type": "object",
-                      "properties": {
-                        "max_height_m": { "type": "number", "nullable": true },
-                        "max_storeys": { "type": "integer", "nullable": true },
-                        "max_site_coverage_pct": { "type": "number", "nullable": true },
-                        "min_permeability_pct": { "type": "number", "nullable": true },
-                        "setbacks": {
-                          "type": "object",
+                      "description": "Development rules for this zone. null when zone rules are not yet seeded (meta.partial will be true).",
+                      "nullable": true,
+                      "oneOf": [
+                        { "type": "object", "nullable": false,
                           "properties": {
-                            "front_m": { "type": "number", "nullable": true },
-                            "side_m": { "type": "number", "nullable": true },
-                            "rear_m": { "type": "number", "nullable": true }
+                            "max_height_m": { "type": "number", "nullable": true, "example": 9.5 },
+                            "max_storeys": { "type": "integer", "nullable": true, "example": 2 },
+                            "max_site_coverage_pct": { "type": "number", "nullable": true, "example": 50 },
+                            "min_permeability_pct": { "type": "number", "nullable": true, "example": 20 },
+                            "setbacks": {
+                              "type": "object",
+                              "properties": {
+                                "front_m": { "type": "number", "nullable": true, "example": 6 },
+                                "side_m": { "type": "number", "nullable": true, "example": 1.5 },
+                                "rear_m": { "type": "number", "nullable": true, "example": 6 }
+                              }
+                            },
+                            "secondary_dwelling_permitted": { "type": "string", "nullable": true, "example": "yes" },
+                            "short_term_accom_permitted": { "type": "string", "nullable": true, "example": "no" },
+                            "home_business_permitted": { "type": "string", "nullable": true, "example": "yes" },
+                            "subdivision_min_lot_size_m2": { "type": "number", "nullable": true, "example": 400 }
                           }
                         },
-                        "secondary_dwelling_permitted": { "type": "string" },
-                        "short_term_accom_permitted": { "type": "string" },
-                        "home_business_permitted": { "type": "string" },
-                        "subdivision_min_lot_size_m2": { "type": "number", "nullable": true }
+                        { "type": "object", "nullable": true }
+                      ]
+                    },
+                    "key_rules": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "Plain-language summary of key development rules for this zone. Only present on full (non-partial) responses.",
+                      "items": { "type": "string" },
+                      "example": ["Maximum height 9.5m or 2 storeys", "Secondary dwelling (granny flat) permitted", "Minimum lot size 400m²"]
+                    },
+                    "uses": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Use classifications for this zone. Only present on full (non-partial) responses.",
+                      "properties": {
+                        "permitted": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "example": ["Dwelling house", "Home-based business", "Secondary dwelling"]
+                        },
+                        "requires_permit": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "example": ["Short-term accommodation", "Child care centre"]
+                        },
+                        "prohibited": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "example": ["Industry", "Shopping centre"]
+                        }
                       }
                     },
                     "overlays": {
                       "type": "object",
+                      "description": "Spatial overlay results. All overlay types are always present — check individual overlay fields.",
                       "properties": {
                         "flood": {
                           "type": "object",
+                          "description": "Flood overlay status. Shape varies slightly by state.",
                           "properties": {
-                            "has_flood_overlay": { "type": "boolean" },
-                            "risk_level": { "type": "string" }
+                            "has_flood_overlay": { "type": "boolean", "example": true },
+                            "risk_level": { "type": "string", "nullable": true, "example": "low", "description": "QLD: FHA risk level. NSW: 'none' or flood planning area name. VIC: LSIO/FO/SBO overlay type." },
+                            "flood_category": { "type": "string", "nullable": true, "example": "FHA_R5", "description": "Internal flood category code. QLD: FHA_R1–R5, FHA_R2A. VIC: LSIO, FO, SBO. NSW: flood_planning_area." },
+                            "overlay_type": { "type": "string", "nullable": true, "example": "brisbane_river", "description": "Data source identifier. E.g. brisbane_river, overland_flow, goldcoast, moretonbay, sunshinecoast, redland, logan, ipswich, NSW_EPI, Vicmap_Planning." },
+                            "disclaimer": { "type": "string", "nullable": true, "description": "Present when result is from QFAO statewide fallback rather than council-specific data." }
                           }
                         },
                         "character": {
                           "type": "object",
                           "properties": {
-                            "has_character_overlay": { "type": "boolean" }
+                            "has_character_overlay": { "type": "boolean", "example": false }
                           }
                         },
                         "schools": {
                           "type": "array",
+                          "description": "School catchment zones containing this address.",
                           "items": {
                             "type": "object",
                             "properties": {
-                              "school_name": { "type": "string" },
-                              "school_type": { "type": "string" },
-                              "school_level": { "type": "string" }
+                              "school_name": { "type": "string", "example": "West End SS" },
+                              "school_type": { "type": "string", "example": "primary", "enum": ["primary", "secondary"] },
+                              "school_level": { "type": "string", "example": "prep_to_6" }
                             }
+                          }
+                        },
+                        "bushfire": {
+                          "type": "object",
+                          "properties": {
+                            "has_bushfire_overlay": { "type": "boolean", "example": false },
+                            "intensity_class": { "type": "string", "nullable": true, "example": "High", "description": "Bushfire intensity class. QLD SEQ only." },
+                            "lga": { "type": "string", "nullable": true, "example": "brisbane" }
+                          }
+                        },
+                        "heritage": {
+                          "type": "object",
+                          "properties": {
+                            "is_heritage": { "type": "boolean", "example": false },
+                            "heritage_type": { "type": "string", "nullable": true, "example": "State Heritage", "description": "E.g. 'State Heritage', 'Local Heritage Area'. QLD only." },
+                            "heritage_name": { "type": "string", "nullable": true },
+                            "place_id": { "type": "string", "nullable": true }
+                          }
+                        },
+                        "noise": {
+                          "type": "object",
+                          "properties": {
+                            "has_noise_overlay": { "type": "boolean", "example": false },
+                            "anef_contour": { "type": "string", "nullable": true, "example": "25", "description": "ANEF contour level. E.g. '20', '25', '30', '35', '40'. Western Sydney uses ranges: '20 - 25'." },
+                            "airport": { "type": "string", "nullable": true, "example": "BRISBANE", "description": "Airport identifier. E.g. BRISBANE, ARCHERFIELD, GOLD_COAST, MELBOURNE, Western Sydney Airport." }
                           }
                         }
                       }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "version": { "type": "string", "example": "2.0.0" },
+                        "coverage": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "example": ["QLD_SEQ", "NSW_Sydney", "VIC_Melbourne"]
+                        },
+                        "partial": { "type": "boolean", "example": false, "description": "true when zone rules are not seeded. Overlay data still returned." },
+                        "reason": { "type": "string", "nullable": true, "example": "zone_not_seeded", "description": "Only present when partial: true." },
+                        "source": { "type": "string", "nullable": true, "example": "Brisbane City Plan 2014", "description": "Planning scheme source name. Only present on full responses." },
+                        "source_url": { "type": "string", "nullable": true, "format": "uri" },
+                        "last_verified": { "type": "string", "nullable": true, "example": "2025-01-01" },
+                        "disclaimer": { "type": "string", "example": "Indicative only. Rules may be affected by overlays, neighbourhood plans, or recent amendments not reflected here. Always verify with the relevant council before making development decisions." },
+                        "response_ms": { "type": "integer", "example": 820 },
+                        "auth": {
+                          "type": "object",
+                          "properties": {
+                            "authenticated": { "type": "boolean", "example": false },
+                            "plan": { "type": "string", "example": "unauthenticated", "description": "E.g. unauthenticated, free, pro, enterprise." },
+                            "note": { "type": "string", "nullable": true, "example": "Unauthenticated requests are rate limited. Get a free API key at zoneiq.com.au" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "full_response_nsw": {
+                    "summary": "Full response — Sydney NSW (rules seeded)",
+                    "value": {
+                      "success": true,
+                      "query": { "address_input": "12 Martin Place, Sydney NSW 2000", "address_resolved": "12 Martin Pl, Sydney NSW 2000, Australia", "lat": -33.8676278, "lng": 151.2082297 },
+                      "zone": { "code": "RE1", "name": "Public Recreation", "category": "mixed", "council": "sydney" },
+                      "rules": { "max_height_m": null, "max_storeys": null, "max_site_coverage_pct": null, "min_permeability_pct": null, "setbacks": { "front_m": null, "side_m": null, "rear_m": null }, "secondary_dwelling_permitted": "no", "short_term_accom_permitted": "no", "home_business_permitted": "no", "subdivision_min_lot_size_m2": null },
+                      "key_rules": ["Public recreation — parks, sportsgrounds, open space", "Residential not permitted"],
+                      "uses": { "permitted": ["Park", "Outdoor recreation", "Sportsground"], "requires_permit": ["Food and drink premises (ancillary)"], "prohibited": ["Dwelling house", "Industry", "Retail"] },
+                      "overlays": { "flood": { "has_flood_overlay": false, "risk_level": "none" }, "character": { "has_character_overlay": false }, "schools": [{ "school_name": "Fort St PS", "school_type": "primary", "school_level": "prep_to_6" }], "bushfire": { "has_bushfire_overlay": false, "intensity_class": null, "lga": null }, "heritage": { "is_heritage": false, "heritage_type": null, "heritage_name": null, "place_id": null }, "noise": { "has_noise_overlay": false, "anef_contour": null, "airport": null } },
+                      "meta": { "version": "2.0.0", "coverage": ["QLD_SEQ", "NSW_Sydney", "VIC_Melbourne"], "partial": false, "source": "NSW Standard Instrument LEP", "source_url": "https://www.planningportal.nsw.gov.au", "last_verified": "2025-01-01", "disclaimer": "Indicative only. Always verify with the relevant council before making development decisions.", "response_ms": 1394, "auth": { "authenticated": false, "plan": "unauthenticated" } }
+                    }
+                  },
+                  "partial_response_qld": {
+                    "summary": "Partial response — QLD address, zone not seeded",
+                    "value": {
+                      "success": true,
+                      "query": { "address_input": "18 Montague Road, West End QLD 4101", "address_resolved": "18 Montague Rd, South Brisbane QLD 4101, Australia", "lat": -27.4707241, "lng": 153.0172539 },
+                      "zone": { "code": "SC", "name": null, "category": null, "council": "brisbane" },
+                      "rules": null,
+                      "overlays": { "flood": { "has_flood_overlay": true, "risk_level": "low", "flood_category": "FHA_R5", "overlay_type": "brisbane_river" }, "character": { "has_character_overlay": false }, "schools": [{ "school_name": "West End SS", "school_type": "primary", "school_level": "prep_to_6" }], "bushfire": { "has_bushfire_overlay": false, "intensity_class": null, "lga": null }, "heritage": { "is_heritage": false, "heritage_type": null, "heritage_name": null, "place_id": null }, "noise": { "has_noise_overlay": false, "anef_contour": null, "airport": null } },
+                      "meta": { "version": "2.0.0", "coverage": ["QLD_SEQ", "NSW_Sydney", "VIC_Melbourne"], "partial": true, "reason": "zone_not_seeded", "disclaimer": "Zone rules not yet available for this zone. Overlay data is returned where available.", "response_ms": 1192, "auth": { "authenticated": false, "plan": "unauthenticated" } }
                     }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Missing address parameter" },
-          "401": { "description": "Invalid or missing API key" },
-          "404": { "description": "Address not found or outside coverage area" }
+          "400": {
+            "description": "Missing or invalid address parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": false },
+                    "error": { "type": "string", "example": "MISSING_ADDRESS" },
+                    "message": { "type": "string", "example": "Query param ?address= is required." }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": false },
+                    "error": { "type": "string", "example": "INVALID_KEY" },
+                    "message": { "type": "string" },
+                    "upgrade_url": { "type": "string", "nullable": true }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Address not geocodable, or outside coverage area",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": false },
+                    "error": { "type": "string", "example": "OUTSIDE_COVERAGE", "enum": ["ADDRESS_NOT_FOUND", "OUTSIDE_COVERAGE"] },
+                    "message": { "type": "string", "example": "Address is outside coverage area. Coverage: SEQ (Brisbane, Gold Coast, Moreton Bay, Sunshine Coast, Ipswich, Logan, Redland), Greater Sydney (NSW), and Greater Melbourne (VIC)." }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "ApiKeyHeader": [] }]
+        "security": [
+          {},
+          { "ApiKeyHeader": [] },
+          { "RapidApiKey": [] }
+        ]
       }
     }
   },
@@ -121,7 +305,14 @@
       "ApiKeyHeader": {
         "type": "apiKey",
         "in": "header",
-        "name": "X-RapidAPI-Key"
+        "name": "X-Api-Key",
+        "description": "Direct API key. Get a free key at zoneiq.com.au."
+      },
+      "RapidApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-RapidAPI-Key",
+        "description": "RapidAPI subscription key."
       }
     }
   }

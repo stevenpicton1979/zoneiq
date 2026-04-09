@@ -35,12 +35,12 @@ type LookupResult = {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const EXAMPLE_ADDRESSES = [
-  '12 Windermere Rd, Ascot QLD 4007',
-  '100 Melbourne St, South Brisbane QLD 4101',
-  '5 James St, Fortitude Valley QLD 4006',
-  '18 Surfers Paradise Blvd, Surfers Paradise QLD 4217',
-  '1 Endeavour Blvd, North Lakes QLD 4509',
-  '1 Ocean St, Maroochydore QLD 4558',
+  '18 Montague Road, West End QLD 4101',
+  '1 Surfers Paradise Blvd, Surfers Paradise QLD 4217',
+  '45 Homebush Bay Drive, Homebush NSW 2140',
+  '12 Martin Place, Sydney NSW 2000',
+  '22 Church Street, Richmond VIC 3121',
+  '200 Swanston Street, Melbourne VIC 3000',
 ]
 
 const CATEGORY_STYLES: Record<string, { badge: string; border: string }> = {
@@ -56,10 +56,20 @@ function getCategoryStyle(category: string) {
 }
 
 function councilLabel(council: string) {
-  if (council === 'goldcoast') return 'Gold Coast City Council'
-  if (council === 'moretonbay') return 'Moreton Bay Regional Council'
-  if (council === 'sunshinecoast') return 'Sunshine Coast Regional Council'
-  return 'Brisbane City Council'
+  const labels: Record<string, string> = {
+    goldcoast: 'Gold Coast City Council',
+    moretonbay: 'Moreton Bay Regional Council',
+    sunshinecoast: 'Sunshine Coast Regional Council',
+    ipswich: 'Ipswich City Council',
+    logan: 'Logan City Council',
+    redland: 'Redland City Council',
+    sydney: 'City of Sydney',
+    melbourne: 'City of Melbourne',
+    yarra: 'City of Yarra',
+    port_phillip: 'City of Port Phillip',
+    stonnington: 'City of Stonnington',
+  }
+  return labels[council] ?? council.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
 // ─── Small components ─────────────────────────────────────────────────────────
@@ -156,7 +166,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-baseline gap-3">
             <span className="text-lg font-bold tracking-tight">ZoneIQ</span>
-            <span className="text-xs text-zinc-400 hidden sm:inline">SEQ Planning Zone API</span>
+            <span className="text-xs text-zinc-400 hidden sm:inline">Australia&rsquo;s Planning Zone API</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-zinc-500">
             <a href="/docs" className="hover:text-zinc-900 transition-colors">Docs</a>
@@ -173,10 +183,10 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="max-w-2xl mb-10">
             <h1 className="text-4xl font-bold tracking-tight text-zinc-900 mb-4">
-              SEQ&rsquo;s planning zone API
+              Australia&rsquo;s planning zone API
             </h1>
             <p className="text-lg text-zinc-500 leading-relaxed">
-              Instant zone, rules, and overlay data for any South East Queensland address.
+              Instant zone, rules, and overlay data for any Australian address.
               One API call. Clean JSON. No scraping.
             </p>
           </div>
@@ -189,7 +199,7 @@ export default function Home() {
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter any Brisbane, Gold Coast, Moreton Bay or Sunshine Coast address…"
+                placeholder="Enter any Australian address…"
                 className="flex-1 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-200"
               />
               <button
@@ -400,14 +410,14 @@ export default function Home() {
             <div className="rounded-xl border border-zinc-200 p-6">
               <div className="text-2xl mb-3">🌊</div>
               <h3 className="font-semibold text-zinc-900 mb-2">Overlays</h3>
-              <p className="text-sm text-zinc-500 leading-relaxed">Flood risk (river + overland), character heritage overlay, and school catchments in a single call.</p>
+              <p className="text-sm text-zinc-500 leading-relaxed">Flood risk, bushfire hazard, heritage listings, school catchments, aircraft noise (ANEF), character overlays — all in a single call.</p>
             </div>
             <div className="rounded-xl border border-zinc-200 p-6">
               <div className="text-2xl mb-3">📍</div>
               <h3 className="font-semibold text-zinc-900 mb-2">Coverage</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Brisbane City Council, Gold Coast City Council, Moreton Bay Regional Council, and Sunshine Coast Regional Council.{' '}
-                <span className="text-zinc-400">More councils coming soon.</span>
+                84 councils across QLD, NSW and VIC. Brisbane, Sydney, Melbourne and surrounds.{' '}
+                <span className="text-zinc-400">More states coming soon.</span>
               </p>
             </div>
           </div>
@@ -612,8 +622,8 @@ print(data["rules"]["max_storeys"])
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
               <div className="font-bold text-zinc-900 mb-1">ZoneIQ</div>
-              <p className="text-xs text-zinc-400">SEQ&rsquo;s planning zone API</p>
-              <p className="text-xs text-zinc-400 mt-1">Coverage: Brisbane · Gold Coast · Moreton Bay · Sunshine Coast</p>
+              <p className="text-xs text-zinc-400">Australia&rsquo;s planning zone API</p>
+              <p className="text-xs text-zinc-400 mt-1">Coverage: QLD · NSW · VIC — 84 councils</p>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-zinc-400">
               <a href="/docs" className="hover:text-zinc-700">API Docs</a>
@@ -621,8 +631,8 @@ print(data["rules"]["max_storeys"])
               <span className="text-zinc-300">|</span>
               <a href="https://cityplan.brisbane.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">Brisbane City Plan 2014</a>
               <a href="https://cityplan.goldcoast.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">Gold Coast City Plan 2016</a>
-              <a href="https://planning.moretonbay.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">MBRC Planning Scheme</a>
-              <a href="https://planning.sunshinecoast.qld.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">SCC Planning Scheme 2014</a>
+              <a href="https://www.planningportal.nsw.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">NSW Planning Portal</a>
+              <a href="https://www.planning.vic.gov.au" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700">Vic Planning</a>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-zinc-100 text-xs text-zinc-400">
