@@ -91,16 +91,8 @@ export async function GET(request: NextRequest) {
 
   const { lat, lng, address_resolved } = geocoded
 
-  // Run all spatial lookups in parallel
-  const [zoneResult, floodData, characterData, schoolsData, bushfireData, heritageData, noiseData] = await Promise.all([
-    getZoneForPoint(lat, lng),
-    getFloodForPoint(lat, lng),
-    getCharacterForPoint(lat, lng),
-    getSchoolsForPoint(lat, lng),
-    getBushfireForPoint(lat, lng),
-    getHeritageForPoint(lat, lng),
-    getNoiseForPoint(lat, lng),
-  ])
+  // Stage 1: Zone lookup — must complete first to get zone_code + council
+  const zoneResult = await getZoneForPoint(lat, lng)
 
   if (!zoneResult) {
     logRequest({ addressInput, lat, lng, zoneCode: null, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
@@ -117,34 +109,38 @@ export async function GET(request: NextRequest) {
 
   const { zone_code: zoneCode, council } = zoneResult
 
-  // Sprint 16 — QFAO fallback for QLD addresses with no local flood overlay
-  // Only fires when flood_overlays returns nothing AND council is not NSW/VIC
-  const floodHasOverlay = (floodData as { has_flood_overlay?: boolean }).has_flood_overlay === true
-  let resolvedFloodData = floodData
-  if (!floodHasOverlay) {
-    const isNSW = nswCouncilSet.has(council?.toLowerCase() ?? '')
-    const isVIC = vicCouncilSet.has(council?.toLowerCase() ?? '')
-    if (!isNSW && !isVIC && council) {
-      const qfaoResult = await getQFAOForPoint(lat, lng)
-      if (qfaoResult) resolvedFloodData = qfaoResult
-    }
-  }
+  const isNSW = nswCouncilSet.has(council?.toLowerCase() ?? '')
+  const isVIC = vicCouncilSet.has(council?.toLowerCase() ?? '')
 
-  // Zone rules from DB — try exact council match, then state-standard fallback
+  // Stage 2: Zone rules + all overlay lookups run unconditionally in parallel.
+  // Overlays are never gated on zone rules — they always run for the resolved lat/lng.
   const db = createServiceClient()
-  let { data: rules, error: dbError } = await db
-    .from('zone_rules')
-    .select('*')
-    .eq('zone_code', zoneCode)
-    .eq('council', council)
-    .single()
+  const [
+    rulesResult,
+    floodData,
+    characterData,
+    schoolsData,
+    bushfireData,
+    heritageData,
+    noiseData,
+  ] = await Promise.all([
+    db.from('zone_rules').select('*').eq('zone_code', zoneCode).eq('council', council).single(),
+    getFloodForPoint(lat, lng),
+    getCharacterForPoint(lat, lng),
+    getSchoolsForPoint(lat, lng),
+    getBushfireForPoint(lat, lng),
+    getHeritageForPoint(lat, lng),
+    getNoiseForPoint(lat, lng),
+  ])
+
+  let { data: rules, error: dbError } = rulesResult
 
   // Fallback to NSW_standard for NSW councils, VIC_standard for VIC councils
   if ((dbError || !rules) && council) {
     const cl = council.toLowerCase()
     let fallbackCouncil: string | null = null
-    if (nswCouncilSet.has(cl)) fallbackCouncil = 'NSW_standard'
-    else if (vicCouncilSet.has(cl) || [...vicCouncilSet].some(v => cl.includes(v.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
+    if (isNSW) fallbackCouncil = 'NSW_standard'
+    else if (isVIC || [...vicCouncilSet].some(v => cl.includes(v.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
     if (fallbackCouncil) {
       // Try exact match first, then strip trailing schedule number (e.g. GRZ1 → GRZ, NRZ2 → NRZ)
       const fallbackCodes = [zoneCode]
@@ -165,6 +161,15 @@ export async function GET(request: NextRequest) {
         }
       }
     }
+  }
+
+  // Sprint 16 — QFAO fallback for QLD addresses with no local flood overlay
+  // Only fires when flood_overlays returns nothing AND council is not NSW/VIC
+  const floodHasOverlay = (floodData as { has_flood_overlay?: boolean }).has_flood_overlay === true
+  let resolvedFloodData = floodData
+  if (!floodHasOverlay && !isNSW && !isVIC && council) {
+    const qfaoResult = await getQFAOForPoint(lat, lng)
+    if (qfaoResult) resolvedFloodData = qfaoResult
   }
 
   logRequest({ addressInput, lat, lng, zoneCode, keyId: keyData?.id ?? null, source: keyData?.source ?? 'direct', request })
