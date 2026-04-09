@@ -24,11 +24,12 @@ function buildQuery(address: string, state: 'QLD' | 'NSW' | 'VIC' | null): strin
 // Bounding box guards — accept SEQ, NSW or VIC coordinates
 // SEQ: lat -30 to -24, lng 150 to 155
 // NSW: lat -38 to -28, lng 140 to 154
-// VIC: lat -39.5 to -33.5, lng 140.5 to 150.5 (added Sprint 22)
+// VIC: lat -39.5 to -33.5, lng 140.5 to 150.5
 function isWithinCoverage(lat: number, lng: number): boolean {
   const inSEQ = lat >= -30 && lat <= -24 && lng >= 150 && lng <= 155
   const inNSW = lat >= -38 && lat <= -28 && lng >= 140 && lng <= 154
-  return inSEQ || inNSW
+  const inVIC = lat >= -39.5 && lat <= -33.5 && lng >= 140.5 && lng <= 150.5
+  return inSEQ || inNSW || inVIC
 }
 
 export async function geocodeAddress(address: string): Promise<GeocodedAddress | null> {

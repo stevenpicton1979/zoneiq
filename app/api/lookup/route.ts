@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         success: false,
         error: 'OUTSIDE_COVERAGE',
         message:
-          'Address is outside coverage area. Coverage: SEQ (Brisbane, Gold Coast, Moreton Bay, Sunshine Coast, Ipswich, Logan, Redland) and Greater Sydney (NSW).',
+          'Address is outside coverage area. Coverage: SEQ (Brisbane, Gold Coast, Moreton Bay, Sunshine Coast, Ipswich, Logan, Redland), Greater Sydney (NSW), and Greater Melbourne (VIC).',
       },
       { status: 404, headers: CORS_HEADERS }
     )
@@ -125,15 +125,23 @@ export async function GET(request: NextRequest) {
     if (nswCouncils.includes(council.toLowerCase())) fallbackCouncil = 'NSW_standard'
     else if (vicCouncils.some(c => council.toLowerCase().includes(c.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
     if (fallbackCouncil) {
-      const fallback = await db
-        .from('zone_rules')
-        .select('*')
-        .eq('zone_code', zoneCode)
-        .eq('council', fallbackCouncil)
-        .single()
-      if (!fallback.error && fallback.data) {
-        rules = fallback.data
-        dbError = null
+      // Try exact match first, then strip trailing schedule number (e.g. GRZ1 → GRZ, NRZ2 → NRZ)
+      const fallbackCodes = [zoneCode]
+      const stripped = zoneCode.match(/^([A-Z]+)\d+$/)?.[1]
+      if (stripped && stripped !== zoneCode) fallbackCodes.push(stripped)
+
+      for (const code of fallbackCodes) {
+        const fallback = await db
+          .from('zone_rules')
+          .select('*')
+          .eq('zone_code', code)
+          .eq('council', fallbackCouncil)
+          .single()
+        if (!fallback.error && fallback.data) {
+          rules = fallback.data
+          dbError = null
+          break
+        }
       }
     }
   }
@@ -267,6 +275,8 @@ export async function GET(request: NextRequest) {
         source: council === 'goldcoast' ? 'Gold Coast City Plan 2016'
           : council === 'moretonbay' ? 'Moreton Bay Regional Council Planning Scheme'
           : council === 'sunshinecoast' ? 'Sunshine Coast Planning Scheme 2014'
+          : (rules as { council?: string }).council === 'NSW_standard' ? 'NSW Standard Instrument LEP'
+          : (rules as { council?: string }).council === 'VIC_standard' ? 'Vicmap Planning / Victoria Planning Provisions'
           : 'Brisbane City Plan 2014',
         source_url: rules.source_url,
         last_verified: rules.last_verified,
