@@ -9,6 +9,7 @@ import {
   getBushfireForPoint,
   getHeritageForPoint,
   getNoiseForPoint,
+  getQFAOForPoint,
 } from '@/lib/zone-lookup'
 import { validateApiKey } from '@/lib/auth'
 import type { ApiKeyRecord } from '@/lib/auth'
@@ -18,6 +19,10 @@ export const dynamic = 'force-dynamic'
 
 const API_VERSION = '2.0.0'
 const API_COVERAGE = ['QLD_SEQ', 'NSW_Sydney', 'VIC_Melbourne']
+
+// Council sets for state detection — used for zone rule fallback and QFAO guard
+const nswCouncilSet = new Set(['sydney','parramatta','blacktown','liverpool','penrith','sutherland shire','inner west','canterbury-bankstown','northern beaches','ku-ring-gai','georges river','randwick','waverley','woollahra','lane cove','willoughby','ryde','strathfield','bayside','hornsby','hunters hill','mosman','north sydney','burwood','canada bay','campbelltown','camden','fairfield','hawkesbury','cumberland','the hills shire','blue mountains','wollongong','central coast','city of parramatta'])
+const vicCouncilSet = new Set(['city of melbourne','melbourne','port phillip','yarra','stonnington','boroondara','merri-bek','darebin','moonee valley','maribyrnong','hobsons bay','brimbank','whitehorse','manningham','knox','monash','glen eira','bayside (vic)','bayside','kingston','frankston','maroondah'])
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -112,6 +117,19 @@ export async function GET(request: NextRequest) {
 
   const { zone_code: zoneCode, council } = zoneResult
 
+  // Sprint 16 — QFAO fallback for QLD addresses with no local flood overlay
+  // Only fires when flood_overlays returns nothing AND council is not NSW/VIC
+  const floodHasOverlay = (floodData as { has_flood_overlay?: boolean }).has_flood_overlay === true
+  let resolvedFloodData = floodData
+  if (!floodHasOverlay) {
+    const isNSW = nswCouncilSet.has(council?.toLowerCase() ?? '')
+    const isVIC = vicCouncilSet.has(council?.toLowerCase() ?? '')
+    if (!isNSW && !isVIC && council) {
+      const qfaoResult = await getQFAOForPoint(lat, lng)
+      if (qfaoResult) resolvedFloodData = qfaoResult
+    }
+  }
+
   // Zone rules from DB — try exact council match, then state-standard fallback
   const db = createServiceClient()
   let { data: rules, error: dbError } = await db
@@ -123,11 +141,10 @@ export async function GET(request: NextRequest) {
 
   // Fallback to NSW_standard for NSW councils, VIC_standard for VIC councils
   if ((dbError || !rules) && council) {
-    const nswCouncils = ['sydney','parramatta','blacktown','liverpool','penrith','sutherland shire','inner west','canterbury-bankstown','northern beaches','ku-ring-gai','georges river','randwick','waverley','woollahra','lane cove','willoughby','ryde','strathfield','bayside','hornsby','hunters hill','mosman','north sydney','burwood','canada bay','campbelltown','camden','fairfield','hawkesbury','cumberland','the hills shire','blue mountains','wollongong','central coast','city of parramatta']
-    const vicCouncils = ['city of melbourne','port phillip','yarra','stonnington','boroondara','merri-bek','darebin','moonee valley','maribyrnong','hobsons bay','brimbank','whitehorse','manningham','knox','monash','glen eira','bayside (vic)','kingston','frankston','maroondah']
+    const cl = council.toLowerCase()
     let fallbackCouncil: string | null = null
-    if (nswCouncils.includes(council.toLowerCase())) fallbackCouncil = 'NSW_standard'
-    else if (vicCouncils.some(c => council.toLowerCase().includes(c.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
+    if (nswCouncilSet.has(cl)) fallbackCouncil = 'NSW_standard'
+    else if (vicCouncilSet.has(cl) || [...vicCouncilSet].some(v => cl.includes(v.split(' ')[0]))) fallbackCouncil = 'VIC_standard'
     if (fallbackCouncil) {
       // Try exact match first, then strip trailing schedule number (e.g. GRZ1 → GRZ, NRZ2 → NRZ)
       const fallbackCodes = [zoneCode]
@@ -154,7 +171,7 @@ export async function GET(request: NextRequest) {
 
   if (dbError || !rules) {
     const partialOverlaysReturned = [
-      floodData ? 'flood' : null,
+      resolvedFloodData ? 'flood' : null,
       characterData ? 'character' : null,
       schoolsData ? 'schools' : null,
       bushfireData ? 'bushfire' : null,
@@ -184,7 +201,7 @@ export async function GET(request: NextRequest) {
         zone: { code: zoneCode, name: null, category: null, council },
         rules: null,
         overlays: {
-          flood: floodData,
+          flood: resolvedFloodData,
           character: characterData,
           schools: schoolsData,
           bushfire: bushfireData,
@@ -270,7 +287,7 @@ export async function GET(request: NextRequest) {
         prohibited: rules.prohibited_uses,
       },
       overlays: {
-        flood: floodData,
+        flood: resolvedFloodData,
         character: characterData,
         schools: schoolsData,
         bushfire: bushfireData,

@@ -305,7 +305,7 @@ Committed with Sprint 23 scripts. Pushed main → Vercel.
 
 ---
 
-## Sprint 24 — SEQ Flood Gap Fill (6 Councils) [ ]
+## Sprint 24 — SEQ Flood Gap Fill (6 Councils) [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 24"
 **Note:** Can run in parallel with Sprints 19–23 if overnight capacity allows.
 **Current state:** flood_overlays has 7,102 rows (Brisbane only).
@@ -351,7 +351,7 @@ GitHub MCP commit to main: "Sprint 24: SEQ flood gap fill — Gold Coast, Moreto
 
 ---
 
-## Sprint 25 — National Geocoder + Routing + API v2.0 [ ]
+## Sprint 25 — National Geocoder + Routing + API v2.0 [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 25"
 **Run after:** Sprints 19–23 complete (NSW and VIC data must be ingested first).
 
@@ -413,7 +413,7 @@ GitHub MCP commit to main: "Sprint 25: national geocoder, NSW+VIC routing, API v
 
 ---
 
-## Sprint 16 — QFAO Statewide Flood Fallback [ ]
+## Sprint 16 — QFAO Statewide Flood Fallback [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 16"
 **Run after:** Sprint 24 complete. SEQ flood gap fill must be done first — otherwise
 QFAO fires incorrectly for councils that have real flood data incoming.
