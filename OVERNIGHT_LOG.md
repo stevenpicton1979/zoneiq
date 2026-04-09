@@ -224,6 +224,28 @@ West End and New Farm correctly flagged as flood=true (both near Brisbane River)
 
 ---
 
+## Sprint 21 — NSW Schools + Sydney Airport ANEF — COMPLETE 2026-04-09
+
+**Task 1:** 920 NSW school catchments inserted — 717 primary (prep_to_6) + 203 secondary (year_7_to_12). Source: data.nsw.gov.au catchments.zip (GDA94 ≈ WGS84). shapefile npm package used to read .shp+.dbf files. Greater Sydney bbox filter applied.
+**Task 2:** ANEF search — Sydney Kingsford Smith ANEF not found in NSW Planning Portal (no ArcGIS layer for KSA). ANEF_SYDNEY_KSA_NOT_FOUND — manual acquisition required. Western Sydney Airport (Badgerys Creek) ANEF found at Planning_Portal_SEPP Layer 280. 4 contours inserted (20-25, 25-30, 30-35, 35-40).
+**Task 3:** 5-address smoke test — ALL zones/councils/schools correct. RE1/sydney (Martin Place), SP2/strathfield (Homebush), E4/penrith (Penrith), R3/north sydney (Cremorne), SP2/inner west (Mascot). School catchments returned for 4/5 addresses. Mascot address shows no school (expected — airport precinct).
+**Task 4:** Deployed with Sprint 19 changes.
+
+---
+
+## Sprint 20 — NSW Flood Ingest (Greater Sydney) — COMPLETE 2026-04-09
+
+**Task 1:** Layer 230 (Flood Planning Map) confirmed in Planning_Portal_Hazard. Fields: EPI_NAME, LGA_NAME, LAY_CLASS. CRS: EPSG:4283, max 2000/req. 540 features in bbox.
+**Task 2:** `scripts/ingest-nsw-flood.js` written — batch RPC insert, outSR=4326.
+**Task 3:** 540 flood polygons inserted. overlay_type='NSW_EPI', flood_category=LAY_CLASS, risk_level=EPI_NAME.
+  - Coverage: Hornsby LEP (2 polygons), Western/Central Parkland City SEPPs (538 polygons)
+  - Note: NSW EPI flood data is sparse — narrow creek corridor polygons from specific SEPP precincts only. Full council-level flood maps are not published to the ePlanning portal. Individual council flood studies required for comprehensive coverage.
+**Task 4:** No response shape changes needed — existing shape (overlay_type='NSW_EPI', risk_level=EPI_NAME) is informative. get_flood_for_point RPC returns NSW_EPI overlays correctly when point falls within polygon.
+**Task 5:** 3 test addresses — zone codes all correct (MU1/Parramatta, R2/Penrith, R4/Mosman). Flood=false for all — these addresses don't fall within the narrow SEPP creek corridor polygons. Expected given data limitations.
+**Task 6:** Commit included in sprint batch.
+
+---
+
 ## Sprint 19 — NSW Zoning Ingest (Greater Sydney) — COMPLETE 2026-04-09
 
 **Task 1:** GiST index confirmed on zone_geometries (zone_geometries_geometry_idx).

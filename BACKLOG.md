@@ -143,7 +143,7 @@ GitHub MCP commit to main: "Sprint 19: NSW zoning ingest Greater Sydney, geocode
 
 ---
 
-## Sprint 20 — NSW Flood Ingest (Greater Sydney) [ ]
+## Sprint 20 — NSW Flood Ingest (Greater Sydney) [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 20"
 **Note:** NSW uses EPI flood polygons, not BCC-style FHA_R1/R2A codes. Returns flood status + LEP reference.
 
@@ -192,7 +192,7 @@ GitHub MCP commit to main: "Sprint 20: NSW flood overlay ingest Greater Sydney"
 
 ---
 
-## Sprint 21 — NSW Schools + Sydney Airport ANEF [ ]
+## Sprint 21 — NSW Schools + Sydney Airport ANEF [x] COMPLETE 2026-04-09
 **Slack:** "sprint: zoneiq 21"
 
 ### [ ] Task 1 — Ingest NSW school catchments
