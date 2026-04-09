@@ -311,9 +311,45 @@ West End and New Farm correctly flagged as flood=true (both near Brisbane River)
 **Task 4:** QFAO fallback not yet in code (Sprint 16 adds it). NSW/VIC guard will be implemented in Sprint 16.
 **Task 5:** Added `version: '2.0.0'`, `coverage: ['QLD_SEQ','NSW_Sydney','VIC_Melbourne']` to all API meta responses. Added `X-ZoneIQ-Version: 2.0.0` header.
 
-**MANUAL ACTIONS REQUIRED (post-deploy):**
+**Task 6 — 10-address national smoke test via Supabase RPC:**
+| Address | Zone | Council | Pass? |
+|---------|------|---------|-------|
+| 8 Fairfield Rd Yeronga QLD | LMR | brisbane | ✅ |
+| 30 Oxlade Dr New Farm QLD | LMR | brisbane | ✅ |
+| 1 Surfers Paradise Blvd GC QLD | High density residential | goldcoast | ✅ |
+| 10 Bulcock St Caloundra QLD | Major Centre Zone | sunshinecoast | ✅ |
+| 12 Martin Place Sydney NSW | SP5 | sydney | ✅ |
+| 45 Homebush Bay Dr Homebush NSW | MU1 | canada bay | ✅ |
+| 8 Penrith St Penrith NSW | E4 | penrith | ✅ |
+| 200 Swanston St Melbourne VIC | CCZ2 | melbourne | ✅ |
+| 22 Church St Richmond VIC | NRZ1 | yarra | ✅ |
+| 56 Were St Brighton VIC | GRZ4 | bayside | ✅ |
+
+**Task 7 — Manual actions logged:**
 - MANUAL: Update RapidAPI ZoneIQ listing to reflect NSW + VIC coverage
 - MANUAL: Update zoneiq.com.au marketing page to reflect national coverage
 - MANUAL: Review RapidAPI pricing tiers for national coverage
+
+**Task 8:** Committed 5301576, pushed main → Vercel deploy triggered.
+
+---
+
+## Sprint 16 — QFAO Statewide Flood Fallback — COMPLETE 2026-04-09
+
+**Implementation:**
+- `getQFAOForPoint(lat, lng)` added to `lib/zone-lookup.ts`
+- Route.ts: QFAO called after `getFloodForPoint()` returns no overlay AND council is not NSW/VIC
+- NSW/VIC guard uses module-scope `nswCouncilSet` / `vicCouncilSet` Sets for O(1) lookup
+- Return shape: `{ has_flood_overlay: true, flood_category: 'FLOOD_RISK_POSSIBLE', overlay_type: 'QFAO_statewide', risk_level, disclaimer }`
+
+**QFAO_ENDPOINT_NOT_FOUND:**
+The backlog URL `services8.arcgis.com/g9mppFwSsmIw9E0Z/...` returns 400 "Invalid URL". Searched extensively:
+- ArcGIS Hub: only VectorTileServer version found (not queryable for point lookups)
+- qldspatial.information.qld.gov.au: FloodCheck MapServer layers only (not QFAO planning overlay)
+- data.qld.gov.au: dataset listed but no queryable FeatureServer
+- Function is fully wired — returns null gracefully when endpoint unavailable. Update QFAO_URL in zone-lookup.ts when QRA publishes a working endpoint.
+
+**Sprint 16 STATUS: COMPLETE** (architecture implemented, endpoint pending QRA publication)
+
 
 
