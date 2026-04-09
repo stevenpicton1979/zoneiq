@@ -135,24 +135,21 @@ Total: 14 rows (BRISBANE 6, ARCHERFIELD 3, GOLD_COAST 5).
 **Task 2 — SEQ bounding box guard ✅ COMPLETE**
 `lib/geocode.ts`: added `isWithinSEQ()` guard rejecting geocode results outside lat -30→-24, lng 150→155. Prevents silent wrong-state geocoding.
 
-**Task 3 — Google Geocoding API ✅ CODE COMPLETE — AWAITING API KEY**
-`lib/geocode.ts` fully rewritten. Nominatim replaced with Google Geocoding API. Appends ", Queensland Australia" to queries. SEQ guard applied. Env var `GOOGLE_GEOCODING_API_KEY` not yet in Vercel — awaiting key from Steve.
+**Task 3 — Google Geocoding API ✅ COMPLETE**
+`lib/geocode.ts` fully rewritten. Nominatim replaced with Google Geocoding API. Appends ", Queensland Australia" to queries. SEQ guard applied. API key added to Vercel prod + dev env by Steve.
 
-**Task 4 — Seed Brisbane zone rules ⚠️ BLOCKED — Supabase returning Cloudflare 522**
-SQL ready at `supabase/sprint17-brisbane-zones.sql`. Seed script at `scripts/seed-brisbane-lmr-zones.js`.
-Run when Supabase recovers: `node scripts/run-seed-with-env.js` from repo root.
-Zones: LMR, SP, MU, CF, IN, SR (6 codes — unblocks 47% of Brisbane lookup failures).
+**Task 4 — Seed Brisbane zone rules ✅ COMPLETE**
+Supabase recovered from Cloudflare 522. `apply_migration` ran successfully.
+Zones seeded: LMR, SP, MU, CF, IN, SR. Brisbane zone_rules count: 12 → 18 (verified via Supabase MCP).
 
-**Task 5 — Deploy and smoke test ⚠️ PENDING**
-Blocked by: Google API key + Supabase outage. Tasks 1 and 2 code is deployable now.
+**Task 5 — Deploy and smoke test ✅ COMPLETE**
+Deployment succeeded (`.vercelignore` fix excluded 1.1 GB data/ dir).
+Post-recovery smoke test results:
+- 30 Oxlade Drive New Farm: PASS — zone=LMR, flood=true, full rules ✅
+- 8 Fairfield Road Yeronga: zone=LMR, flood=false — geocoder resolved to Fairfield suburb (correct behaviour), no flood overlay at that point. Rules working ✅
+- 18 Montague Road West End: zone=SC (not seeded), flood=true — partial 200 confirmed working. Flood data (FHA_R5, brisbane_river) returned despite zone_not_seeded ✅
 
-**Google API key:** Provided by Steve and added to Vercel production + development env. ✅
-**Deployment:** Succeeded after adding `.vercelignore` to exclude `data/` (1.1 GB bushfire GeoJSON was blowing the 1 GB Vercel limit). ✅
-**Smoke test:** 3/3 addresses return OUTSIDE_COVERAGE — Supabase zone lookup returning null (host still unreachable). Google geocoder IS working (geocoding completes; failure at zone spatial query stage).
-
-**Remaining blocker:** Supabase 522 — host unreachable since ~03:17 UTC 2026-04-09.
-When Supabase recovers:
-1. Run `node scripts/run-seed-with-env.js` from `C:/dev/zoneiq` to seed LMR/SP/MU/CF/IN/SR zones
-2. Re-run smoke test: `node -e "..."` or hit zoneiq-sigma.vercel.app manually
+**Sprint 17 STATUS: COMPLETE**
+Zone seed: 18 Brisbane rules in DB. Partial 200 fix delivering overlays. Google geocoder live. SC zone not yet seeded — log for future sprint.
 
 ---
