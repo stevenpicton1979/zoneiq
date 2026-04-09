@@ -4,6 +4,26 @@ All overnight build activity logged here with timestamps (AEST).
 
 ---
 
+## fix-partial-response — 2026-04-09
+
+**Task:** Ensure overlays always populate even when zone rules are absent (partial response).
+
+**Root cause:** `route.ts` ran zone rules lookup *sequentially* after the overlay Promise.all, and while the partial response block already included overlays, the structure was fragile — zone rules and overlays were not conceptually unified.
+
+**Fix:** Restructured to a two-stage lookup:
+- Stage 1: `getZoneForPoint` (need zone_code + council before anything else)
+- Stage 2: `Promise.all([zone_rules, flood, character, schools, bushfire, heritage, noise])` — all run unconditionally in parallel
+
+**Test: 100 Rafting Ground Rd, Brookfield QLD (zone RR — unseeded)**
+- `zone.code: "RR"`, `rules: null`, `meta.partial: true` ✓
+- `overlays.bushfire: { has_bushfire_overlay: true, intensity_class: "buffer" }` ✓
+- `overlays.schools: [Brookfield SS, Kenmore SHS]` ✓
+
+**Deployed:** Vercel production — `dpl_7EjdKaNBikFK8PuvbcT8qMz2Nfef`
+**Commit:** `9b6ddd0`
+
+---
+
 ## Session start
 
 **Date:** 2026-04-05
