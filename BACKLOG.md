@@ -201,6 +201,33 @@ GitHub MCP commit to main: "Sprint 28: KSF + Essendon ANEF ingest attempt"
 
 ---
 
+## Sprint 29 — QLD Statutory Land Valuation overlay
+Status: [ ]
+
+### Context
+ZoneIQ is national. QLD Valuer General publishes statutory land values (unimproved capital value) as open data via Queensland Globe ArcGIS services. This is free, no licence required, queryable server-side. ClearOffer will consume it automatically once live.
+
+### Tasks
+- [ ] Locate the QLD Globe ArcGIS FeatureServer endpoint for statutory land valuations (search Queensland Globe / QSpatial for "land valuation" or "unimproved capital value")
+- [ ] Add live ArcGIS query to /api/lookup — QLD addresses only (state === 'QLD'). Spatial query by lat/lng, return most recent valuation record.
+- [ ] Add land_valuation to overlay response shape:
+  - land_valuation.statutory_value (integer, AUD)
+  - land_valuation.year (integer)
+  - land_valuation.source = "QLD_VG"
+  - land_valuation.available: true
+- [ ] For non-QLD addresses return: land_valuation: { available: false, statutory_value: null, year: null, source: null }
+- [ ] Update OpenAPI spec at /api/openapi to document land_valuation field (all states)
+- [ ] Smoke test: 3 Brisbane addresses — confirm statutory_value and year populated. 1 Sydney address — confirm available: false.
+- [ ] Deploy to Vercel. Log to OVERNIGHT_LOG.md.
+
+### Notes
+- Same pattern as existing ArcGIS overlay fetches (flood, heritage etc.) — live query, not ingested
+- Do NOT ingest into Supabase — query live from QLD Globe each request
+- Check CRS on the layer — may need ST_Transform to WGS84 before spatial query
+- Read DECISIONS.md before any architectural changes
+
+---
+
 ## Done
 
 - [x] Sprint 1-2: Brisbane zones + PostGIS + flood/character/school overlays
