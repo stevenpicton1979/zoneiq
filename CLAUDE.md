@@ -36,9 +36,22 @@ Always proceed with bash commands without asking for confirmation, including com
 - If an ArcGIS or external API endpoint cannot be found, try the standard pattern (FeatureServer/0?f=json) and if still failing, log the issue and continue.
 - If Supabase returns an error, log it and continue — do not stop.
 
-## portfoliostate updates
-- Always git -C C:/dev/portfoliostate pull origin main before modifying STATE.md
-- Never write STATE.md without pulling first
+## State management — mandatory protocol
+
+This repo's state lives in C:\dev\portfoliostate\STATE_ZONEIQ.md
+
+Before reading state:
+  git -C C:\dev\portfoliostate fetch origin
+  git -C C:\dev\portfoliostate reset --hard origin/main
+  Then read C:\dev\portfoliostate\STATE_ZONEIQ.md
+
+Never read STATE.md (deprecated). Never write another product's state file.
+
+After completing work, push state before ending the session:
+  cd C:\dev\portfoliostate
+  git add STATE_ZONEIQ.md
+  git commit -m "state: ZoneIQ session update"
+  git push
 
 ## Trusted Network Domains
 Claude Code should automatically allow fetch requests to these domains without prompting:
